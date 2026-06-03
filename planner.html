@@ -31,7 +31,7 @@
   --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
 
 /* HEADER */
 .app-header {
@@ -333,6 +333,130 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 .share-steps { margin-top: 0.5rem; }
 .share-step { display: flex; gap: 8px; font-size: 12px; color: var(--text2); margin-bottom: 5px; align-items: flex-start; }
 .step-num { width: 18px; height: 18px; border-radius: 50%; background: var(--green-light); color: var(--green); font-size: 10px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+
+/* ══ RESPONSIVE ═══════════════════════════════════════════════════════ */
+
+/* Sidebar drawer overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 450;
+}
+.sidebar-overlay.open { display: block; }
+
+/* Sidebar toggle (hamburger) — hidden on desktop */
+.sidebar-toggle {
+  display: none;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  color: var(--text2);
+  font-size: 17px;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.sidebar-toggle:hover { background: var(--surface2); border-color: var(--border-strong); }
+
+/* ── Tablet ≤ 1024px ── */
+@media (max-width: 1024px) {
+  .logo-sub { display: none; }
+}
+
+/* ── Sidebar becomes a drawer ≤ 900px ── */
+@media (max-width: 900px) {
+  .sidebar-toggle { display: flex; }
+
+  .sidebar {
+    position: fixed;
+    left: -270px;
+    top: 0;
+    bottom: 0;
+    z-index: 500;
+    width: 260px;
+    transition: left 0.25s ease;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+  }
+  .sidebar.open { left: 0; }
+
+  /* Let body flex fill remaining height instead of fixed calc */
+  .app-body { height: auto; flex: 1; min-height: 0; }
+  .info-page { height: auto; flex: 1; }
+}
+
+/* ── Mobile header + calendar ≤ 768px ── */
+@media (max-width: 768px) {
+  .app-header {
+    height: auto;
+    min-height: 56px;
+    flex-wrap: wrap;
+    padding: 8px 1rem;
+    gap: 6px;
+  }
+  .header-right {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .page-nav { margin-left: 0; }
+  .view-toggle { margin-left: 0 !important; }
+
+  /* Phase bar scrolls horizontally */
+  .phase-bar {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .phase-bar::-webkit-scrollbar { display: none; }
+
+  /* Calendar scrolls horizontally */
+  .calendar-area { overflow-x: auto; padding: 0.75rem; -webkit-overflow-scrolling: touch; }
+  .week-view { min-width: 620px; }
+
+  /* Stats */
+  .stats-row { gap: 6px; }
+  .stat-chip { padding: 6px 10px; }
+  .stat-chip-val { font-size: 15px; }
+
+  /* Modals full width */
+  .modal { width: calc(100vw - 2rem) !important; padding: 1.25rem; }
+
+  /* Hide email in header — too cramped */
+  #userEmail { display: none; }
+}
+
+/* ── Small mobile ≤ 480px ── */
+@media (max-width: 480px) {
+  .app-header { padding: 6px 0.75rem; }
+  .logo-title { font-size: 18px; }
+  .nav-btn { width: 28px; height: 28px; font-size: 13px; }
+  .week-label { font-size: 12px; min-width: 52px; }
+  .view-btn { padding: 5px 8px; font-size: 11px; }
+  .btn { padding: 6px 10px; font-size: 11px; }
+  .page-nav-btn { padding: 5px 9px; font-size: 11px; }
+
+  .month-day { min-height: 62px; padding: 4px; }
+  .month-event { font-size: 9px; padding: 1px 3px; }
+
+  /* Info page compact */
+  .info-page { padding: 1.25rem 1rem; }
+  .info-hero-title { font-size: 24px; }
+  .info-hero-sub { font-size: 13px; }
+  .info-chips { gap: 5px; }
+  .phase-timeline { flex-direction: column; }
+  .phase-block { border-right: none; border-bottom: 1px solid var(--border); }
+  .phase-block:last-child { border-bottom: none; }
+  .do-dont { grid-template-columns: 1fr; }
+  .diet-macro-row { grid-template-columns: repeat(2, 1fr); }
+}
 </style>
 </head>
 <body>
@@ -342,6 +466,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
     <span class="logo-title">FitPlanner</span>
     <span class="logo-sub">8-week programme · Summer 2026</span>
   </div>
+  <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">&#9776;</button>
   <div class="header-right">
     <div class="week-nav">
       <button class="nav-btn" onclick="changeWeek(-1)">&#8249;</button>
@@ -373,6 +498,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
   <span class="phase-pip"><span class="pip pip-meal"></span> Meal</span>
 </div>
 
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 <div class="app-body">
   <div class="sidebar">
     <div class="sidebar-tabs">
@@ -678,6 +804,16 @@ function scheduleSave() {
 
 function doSignOut() {
   auth.signOut().then(() => { window.location.href = 'index.html'; });
+}
+
+function closeSidebar() {
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+
+function toggleSidebar() {
+  document.querySelector('.sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
 }
 
 // ── DATA ─────────────────────────────────────────────────────────
@@ -1371,6 +1507,7 @@ function setView(v, el) {
 
 // ── PAGE SWITCHING ────────────────────────────────────────────────
 function showPage(page) {
+  closeSidebar();
   const isPlanner = page === 'planner';
   document.getElementById('plannerNavBtn').classList.toggle('active', isPlanner);
   document.getElementById('infoNavBtn').classList.toggle('active', !isPlanner);
