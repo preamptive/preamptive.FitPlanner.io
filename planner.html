@@ -1270,8 +1270,9 @@ function renderMonthView() {
       const date = getDate(w,d);
       const todayCls = isToday(date)?'today-num':'';
       const allEvs = getAllDayEvents(w,d);
-      html += `<div class="month-day" 
-        ondragover="allowDrop(event)" 
+      html += `<div class="month-day"
+        data-key="w${w}d${d}s0"
+        ondragover="allowDrop(event)"
         ondrop="dropEventMonth(event,${w},${d})"
         ondragleave="removeDragOver(event)"
         ondragenter="addDragOver(event)">
@@ -1379,6 +1380,141 @@ function endDrag(e) {
 function allowDrop(e) { e.preventDefault(); }
 function addDragOver(e) { e.currentTarget.classList.add('drag-over'); }
 function removeDragOver(e) { e.currentTarget.classList.remove('drag-over'); }
+
+// ── TOUCH DRAG & DROP ──────────────────────────────────────────────
+// The HTML5 drag API doesn't fire on touchscreen devices, so we
+// implement long-press drag manually using touch events.
+;(function() {
+  const LONG_PRESS  = 220;  // ms hold before drag activates
+  const CANCEL_DIST = 10;   // px of movement that cancels the long-press
+
+  let pending    = null;   // { el, x, y, timer }
+  let drag       = null;   // { type:'card'|'sidebar', key?, id?, data?, el }
+  let ghost      = null;   // floating clone that follows the finger
+  let dropTarget = null;   // slot currently under the finger
+  let ox = 0, oy = 0;      // finger offset within the dragged element
+
+  document.addEventListener('touchstart',  onTS, { passive: true  });
+  document.addEventListener('touchmove',   onTM, { passive: false });
+  document.addEventListener('touchend',    onTE, { passive: false });
+  document.addEventListener('touchcancel', cleanup);
+
+  // ── touchstart: record candidate element, start long-press timer ──
+  function onTS(e) {
+    const el = e.target.closest('[draggable="true"]');
+    if (!el) return;
+    const t = e.touches[0];
+    pending = {
+      el,
+      x: t.clientX,
+      y: t.clientY,
+      timer: setTimeout(() => activate(el, t), LONG_PRESS)
+    };
+  }
+
+  // ── activate: long-press threshold reached — start the drag ──────
+  function activate(el, t) {
+    pending = null;
+    if (navigator.vibrate) navigator.vibrate(20);
+
+    const rect = el.getBoundingClientRect();
+    ox = t.clientX - rect.left;
+    oy = t.clientY - rect.top;
+
+    if (el.classList.contains('event-card')) {
+      // Calendar card → card move
+      drag = { type: 'card', key: el.dataset.key, id: el.dataset.id, el };
+
+    } else if (el.classList.contains('drag-item')) {
+      // Sidebar item — extract JSON from the ondragstart attribute.
+      // getAttribute returns the unescaped value (&quot; → ") so the
+      // slice between the first ',' and the last ')' is valid JSON.
+      const attr = el.getAttribute('ondragstart') || '';
+      const ci = attr.indexOf(',') + 1;
+      const li = attr.lastIndexOf(')');
+      if (ci < 1 || li <= ci) return;
+      try {
+        drag = { type: 'sidebar', data: JSON.parse(attr.slice(ci, li)), el };
+      } catch (_) { return; }
+
+    } else { return; }
+
+    // Build ghost
+    ghost = el.cloneNode(true);
+    ghost.style.cssText =
+      `position:fixed;left:${t.clientX - ox}px;top:${t.clientY - oy}px;` +
+      `width:${rect.width}px;opacity:.85;pointer-events:none;z-index:9999;` +
+      `box-shadow:0 8px 28px rgba(0,0,0,.25);transform:scale(1.06);` +
+      `border-radius:6px;transition:none;`;
+    document.body.appendChild(ghost);
+    el.style.opacity = '.25';
+  }
+
+  // ── touchmove: move ghost, highlight slot under finger ────────────
+  function onTM(e) {
+    const t = e.touches[0];
+
+    // Cancel long-press if the finger has moved too far (user is scrolling)
+    if (pending) {
+      if (Math.abs(t.clientX - pending.x) > CANCEL_DIST ||
+          Math.abs(t.clientY - pending.y) > CANCEL_DIST) {
+        clearTimeout(pending.timer);
+        pending = null;
+      }
+      return;
+    }
+
+    if (!drag) return;
+    e.preventDefault(); // prevent page scroll once drag is live
+
+    ghost.style.left = `${t.clientX - ox}px`;
+    ghost.style.top  = `${t.clientY - oy}px`;
+
+    // Find the slot under the finger (hide ghost briefly so it's not the hit target)
+    ghost.style.visibility = 'hidden';
+    const under = document.elementFromPoint(t.clientX, t.clientY);
+    ghost.style.visibility = '';
+
+    const slot = under && (under.closest('.day-slot') || under.closest('.month-day'));
+    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    if (slot) { slot.classList.add('drag-over'); dropTarget = slot; }
+    else dropTarget = null;
+  }
+
+  // ── touchend: commit the drop ──────────────────────────────────────
+  function onTE(e) {
+    if (pending) { clearTimeout(pending.timer); pending = null; return; }
+    if (!drag) return;
+    e.preventDefault();
+
+    if (dropTarget) {
+      const key = dropTarget.dataset.key;
+      if (key) {
+        if (drag.type === 'card' && drag.key !== key) {
+          const src = events[drag.key] || [];
+          const i   = src.findIndex(ev => ev.id === drag.id);
+          if (i > -1) {
+            const [ev] = src.splice(i, 1);
+            (events[key] = events[key] || []).push(ev);
+          }
+        } else if (drag.type === 'sidebar') {
+          (events[key] = events[key] || []).push({ ...drag.data, id: uid() });
+        }
+        renderAll();
+      }
+    }
+    cleanup();
+  }
+
+  // ── cleanup: remove ghost, reset state ────────────────────────────
+  function cleanup() {
+    if (pending)  { clearTimeout(pending.timer); pending = null; }
+    if (ghost)    { ghost.remove(); ghost = null; }
+    if (drag?.el) drag.el.style.opacity = '';
+    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    drag = null; dropTarget = null;
+  }
+})();
 
 function dropEvent(e, targetKey) {
   e.preventDefault();
