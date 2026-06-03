@@ -358,6 +358,8 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
     </div>
     <button class="btn btn-primary" style="margin-left:8px;padding:6px 14px;font-size:12px" id="addBtn" onclick="openAddModal()">+ Add</button>
     <button class="btn btn-secondary" style="margin-left:6px;padding:6px 14px;font-size:12px;display:flex;align-items:center;gap:5px" onclick="openShareModal()">&#8679; Share</button>
+    <span id="userEmail" style="font-size:11px;color:var(--text3);margin-left:12px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+    <button class="btn btn-secondary" style="margin-left:6px;padding:6px 14px;font-size:12px" onclick="doSignOut()">Sign out</button>
   </div>
 </div>
 
@@ -639,7 +641,45 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
   </div>
 </div>
 
+<!-- Auth loading overlay -->
+<div id="authGate" style="position:fixed;inset:0;background:#F7F5F0;z-index:9999;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:24px;color:#1A1714">FitPlanner</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
 <script>
+// ── FIREBASE ──────────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyBK3EnrgDM5wsWhP0-QmgzhQnOdEH7nn_0",
+  authDomain: "fitplanner-afa30.firebaseapp.com",
+  projectId: "fitplanner-afa30",
+  storageBucket: "fitplanner-afa30.firebasestorage.app",
+  messagingSenderId: "385829334251",
+  appId: "1:385829334251:web:3aa5778420c3fa671822ae",
+  measurementId: "G-PVNRGNN4XL"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+let currentUser = null;
+let saveTimer = null;
+
+function scheduleSave() {
+  if (!currentUser) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    db.collection('plans').doc(currentUser.uid).set({
+      events: JSON.stringify(events),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }, 1500);
+}
+
+function doSignOut() {
+  auth.signOut().then(() => { window.location.href = 'index.html'; });
+}
+
 // ── DATA ─────────────────────────────────────────────────────────
 const START_DATE = new Date(2026, 5, 3); // 3 June 2026
 
@@ -1173,6 +1213,7 @@ function renderAll() {
   if(currentView==='week') renderWeekView(); else renderMonthView();
   renderSidebar();
   renderSidebarContent(activeSideTab);
+  scheduleSave();
 }
 
 // ── DRAG & DROP ───────────────────────────────────────────────────
@@ -1343,8 +1384,22 @@ function showPage(page) {
 }
 
 // ── INIT ─────────────────────────────────────────────────────────
-if(!loadFromUrl()) { initEvents(); }
-renderAll();
+auth.onAuthStateChanged(user => {
+  if (!user) { window.location.href = 'index.html'; return; }
+  currentUser = user;
+  const emailEl = document.getElementById('userEmail');
+  if (emailEl) emailEl.textContent = user.email;
+  document.getElementById('authGate').style.display = 'none';
+  if (loadFromUrl()) { renderAll(); return; }
+  db.collection('plans').doc(user.uid).get().then(doc => {
+    if (doc.exists && doc.data().events) {
+      try { Object.assign(events, JSON.parse(doc.data().events)); } catch(e) { initEvents(); }
+    } else {
+      initEvents();
+    }
+    renderAll();
+  }).catch(() => { initEvents(); renderAll(); });
+});
 
 document.getElementById('modalOverlay').addEventListener('click', function(e){
   if(e.target===this) closeModal();
