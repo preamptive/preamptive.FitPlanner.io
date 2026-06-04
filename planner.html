@@ -645,6 +645,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
     <button class="btn btn-primary" style="margin-left:8px;padding:6px 14px;font-size:12px" id="addBtn" onclick="openAddModal()">+ Add</button>
     <button class="btn btn-secondary" style="margin-left:6px;padding:6px 14px;font-size:12px;display:flex;align-items:center;gap:5px" onclick="openShareModal()">&#8679; Share</button>
     <span id="userEmail" style="font-size:11px;color:var(--text3);margin-left:12px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+    <button class="btn btn-secondary" id="editProfileBtn" style="margin-left:6px;padding:6px 14px;font-size:12px;display:none" onclick="editProfile()">✎ Profile</button>
     <button class="btn btn-secondary" style="margin-left:6px;padding:6px 14px;font-size:12px" onclick="doSignOut()">Sign out</button>
   </div>
 </div>
@@ -946,8 +947,8 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 
     <!-- ── Step 0: Welcome ─────────────────────────────────────── -->
     <div class="ob-step active" id="obStep0">
-      <div class="ob-step-title">Let's build your plan</div>
-      <div class="ob-step-sub">A few quick questions and we'll create a personalised 8-week fitness programme just for you.</div>
+      <div class="ob-step-title" id="obStep0Title">Let's build your plan</div>
+      <div class="ob-step-sub" id="obStep0Sub">A few quick questions and we'll create a personalised 8-week fitness programme just for you.</div>
       <div class="ob-field-row">
         <div class="field">
           <label for="obName">First name</label>
@@ -2373,6 +2374,10 @@ function equipLabel(eq) {
 function personalizeInfoPage(p) {
   if (!p) return;
 
+  // Show the Edit Profile button now that we have a profile
+  const epBtn = document.getElementById('editProfileBtn');
+  if (epBtn) epBtn.style.display = '';
+
   // ── START DATE ────────────────────────────────────────────────────
   START_DATE = planStartDate(p);
 
@@ -2503,16 +2508,30 @@ function showPage(page) {
 
 // ── ONBOARDING ────────────────────────────────────────────────────
 const OB_TOTAL = 6;
-let obStep = 0;
-let obUnit = 'stone';
+let obStep    = 0;
+let obUnit    = 'stone';
+let obEditMode = false;   // true when re-opened via "Edit profile"
 
-function showOnboarding() {
+function showOnboarding(editMode = false) {
+  obEditMode = editMode;
+
+  // Adjust step-0 copy for edit vs new
+  document.getElementById('obStep0Title').textContent = editMode
+    ? 'Update your profile'
+    : 'Let\'s build your plan';
+  document.getElementById('obStep0Sub').textContent = editMode
+    ? 'Adjust any details below. Your saved plan stays untouched — only the info page and sidebar will update immediately.'
+    : 'A few quick questions and we\'ll create a personalised 8-week fitness programme just for you.';
+
+  // Suggest target date as today + 56 days (only for new users)
+  if (!editMode) {
+    const suggested = new Date();
+    suggested.setDate(suggested.getDate() + 56);
+    document.getElementById('obTargetDate').value = suggested.toISOString().split('T')[0];
+  }
+
   document.getElementById('onboardingOverlay').classList.add('open');
   goToObStep(0);
-  // Pre-fill today's date + 56 days as suggested target
-  const suggested = new Date();
-  suggested.setDate(suggested.getDate() + 56);
-  document.getElementById('obTargetDate').value = suggested.toISOString().split('T')[0];
 }
 
 function hideOnboarding() {
@@ -2611,11 +2630,14 @@ function obFinish() {
   const targetDate   = document.getElementById('obTargetDate').value;
   const injuries     = document.getElementById('obInjuries').value.trim();
 
+  const isEdit = obEditMode;
+
   userProfile = {
     name, age, weightRaw, weightUnit: obUnit, weightKg, weightSt,
     goal, fitnessLevel, equipment, sessionsPerWeek,
     targetEvent, targetDate, injuries,
-    createdAt: new Date().toISOString()
+    // Preserve original createdAt so START_DATE doesn't drift on profile edits
+    createdAt: isEdit && userProfile?.createdAt ? userProfile.createdAt : new Date().toISOString(),
   };
 
   // Persist profile alongside plan (merge so we don't clobber events)
@@ -2627,8 +2649,56 @@ function obFinish() {
   }
 
   hideOnboarding();
-  generateInitEvents(userProfile);
-  renderAll();
+
+  if (isEdit) {
+    // Edit mode: refresh sidebar + info page, leave existing calendar events intact
+    WORKOUT_LIBRARY = generateWorkoutLibrary(userProfile);
+    renderAll();
+  } else {
+    // First login: generate a brand-new plan
+    generateInitEvents(userProfile);
+    renderAll();
+  }
+}
+
+// Pre-fills every onboarding field with current profile data
+function prefillOnboarding(p) {
+  if (!p) return;
+  document.getElementById('obName').value = p.name || '';
+  document.getElementById('obAge').value  = p.age  || '';
+
+  // Weight unit toggle
+  obUnit = p.weightUnit || 'stone';
+  document.querySelectorAll('.ob-unit-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(obUnit === 'stone' ? 'obUnitStone' : 'obUnitKg').classList.add('active');
+  document.getElementById('obWeightLabel').textContent = `Current weight (${obUnit === 'stone' ? 'stone' : 'kg'})`;
+  const wInp = document.getElementById('obWeight');
+  wInp.placeholder = obUnit === 'stone' ? 'e.g. 13.5' : 'e.g. 86';
+  wInp.step = obUnit === 'stone' ? '0.5' : '1';
+  wInp.value = p.weightRaw || '';
+
+  // Single-select options
+  document.querySelectorAll('.ob-goal').forEach(el =>
+    el.classList.toggle('selected', el.dataset.value === p.goal));
+  document.querySelectorAll('.ob-fitness').forEach(el =>
+    el.classList.toggle('selected', el.dataset.value === p.fitnessLevel));
+  document.querySelectorAll('.ob-sessions').forEach(el =>
+    el.classList.toggle('selected', el.dataset.value === String(p.sessionsPerWeek)));
+
+  // Equipment checkboxes
+  document.querySelectorAll('.ob-equip').forEach(el =>
+    el.classList.toggle('checked', (p.equipment || []).includes(el.dataset.value)));
+
+  // Final step
+  document.getElementById('obTargetEvent').value = p.targetEvent || '';
+  document.getElementById('obTargetDate').value  = p.targetDate  || '';
+  document.getElementById('obInjuries').value    = p.injuries    || '';
+}
+
+// Opens the onboarding in edit mode, pre-filled with the current profile
+function editProfile() {
+  prefillOnboarding(userProfile);
+  showOnboarding(true);
 }
 
 // ── INIT ─────────────────────────────────────────────────────────
