@@ -457,6 +457,167 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
   .do-dont { grid-template-columns: 1fr; }
   .diet-macro-row { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ══ ONBOARDING ═══════════════════════════════════════════════════ */
+.ob-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 9998;
+  overflow-y: auto;
+  padding: 2rem 1rem 3rem;
+}
+.ob-overlay.open { display: block; }
+
+.ob-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem 2rem 1.5rem;
+  max-width: 540px;
+  margin: 0 auto;
+  box-shadow: var(--shadow);
+}
+
+.ob-logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  color: var(--text);
+  text-align: center;
+  margin-bottom: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.ob-logo-sub { font-size: 12px; color: var(--text3); font-family: 'DM Sans', sans-serif; font-weight: 400; }
+
+.ob-progress {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 2rem;
+}
+.ob-dot {
+  flex: 1; height: 4px;
+  border-radius: 2px;
+  background: var(--border);
+  transition: background 0.3s;
+}
+.ob-dot.done { background: var(--green-mid); }
+.ob-dot.active { background: var(--green); }
+
+.ob-step { display: none; animation: obFadeIn 0.2s ease; }
+.ob-step.active { display: block; }
+@keyframes obFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+.ob-step-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+  line-height: 1.2;
+}
+.ob-step-sub {
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+/* Option cards (goal, fitness level, sessions) */
+.ob-options { display: grid; gap: 8px; margin-bottom: 1rem; }
+.ob-options.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.ob-options.cols-2 { grid-template-columns: repeat(2, 1fr); }
+
+.ob-option {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--surface);
+  text-align: left;
+  user-select: none;
+}
+.ob-option:hover { border-color: var(--green-mid); background: #f5fbf7; }
+.ob-option.selected { border-color: var(--green); background: var(--green-light); }
+.ob-option-icon { font-size: 22px; margin-bottom: 6px; }
+.ob-option-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.ob-option-desc { font-size: 11px; color: var(--text2); margin-top: 3px; line-height: 1.4; }
+
+/* Equipment checkboxes */
+.ob-checks { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+.ob-check {
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  transition: all 0.15s;
+  background: var(--surface);
+  user-select: none;
+}
+.ob-check:hover { border-color: var(--green-mid); }
+.ob-check.checked { border-color: var(--green); background: var(--green-light); }
+.ob-check-box {
+  width: 18px; height: 18px; min-width: 18px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  transition: all 0.15s;
+  margin-top: 1px;
+}
+.ob-check.checked .ob-check-box { background: var(--green); border-color: var(--green); color: #fff; }
+.ob-check-label { font-size: 12px; font-weight: 500; color: var(--text); }
+.ob-check-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+/* Weight row */
+.ob-weight-row { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 1rem; }
+.ob-weight-row .field { flex: 1; margin-bottom: 0; }
+.ob-unit-toggle { display: flex; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; height: 38px; }
+.ob-unit-btn { background: none; border: none; padding: 0 14px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; color: var(--text2); transition: all 0.15s; }
+.ob-unit-btn.active { background: var(--text); color: #fff; }
+
+/* Inline field row */
+.ob-field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* Nav bar */
+.ob-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.ob-step-count { font-size: 12px; color: var(--text3); }
+
+/* Error */
+.ob-error {
+  display: none;
+  background: var(--coral-light);
+  border: 1px solid #F5C4B3;
+  color: var(--coral);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 12px;
+  margin-top: 0.75rem;
+}
+.ob-error.show { display: block; }
+
+/* Optional tag */
+.ob-optional { font-size: 11px; color: var(--text3); font-weight: 400; margin-left: 5px; }
+
+@media (max-width: 540px) {
+  .ob-card { padding: 1.5rem 1.25rem 1.25rem; }
+  .ob-step-title { font-size: 22px; }
+  .ob-options.cols-3 { grid-template-columns: 1fr; }
+  .ob-checks { grid-template-columns: 1fr; }
+  .ob-field-row { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
@@ -767,6 +928,210 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
   </div>
 </div>
 
+<!-- ══ ONBOARDING OVERLAY ══════════════════════════════════════════ -->
+<div class="ob-overlay" id="onboardingOverlay">
+  <div class="ob-card">
+
+    <div class="ob-logo">FitPlanner <span class="ob-logo-sub">· personalised setup</span></div>
+
+    <!-- Progress dots -->
+    <div class="ob-progress">
+      <div class="ob-dot active" id="obDot0"></div>
+      <div class="ob-dot" id="obDot1"></div>
+      <div class="ob-dot" id="obDot2"></div>
+      <div class="ob-dot" id="obDot3"></div>
+      <div class="ob-dot" id="obDot4"></div>
+      <div class="ob-dot" id="obDot5"></div>
+    </div>
+
+    <!-- ── Step 0: Welcome ─────────────────────────────────────── -->
+    <div class="ob-step active" id="obStep0">
+      <div class="ob-step-title">Let's build your plan</div>
+      <div class="ob-step-sub">A few quick questions and we'll create a personalised 8-week fitness programme just for you.</div>
+      <div class="ob-field-row">
+        <div class="field">
+          <label for="obName">First name</label>
+          <input type="text" id="obName" placeholder="e.g. Alex" autocomplete="given-name">
+        </div>
+        <div class="field">
+          <label for="obAge">Age</label>
+          <input type="number" id="obAge" placeholder="e.g. 34" min="10" max="99">
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Step 1: Stats & Goal ────────────────────────────────── -->
+    <div class="ob-step" id="obStep1">
+      <div class="ob-step-title">Where are you starting from?</div>
+      <div class="ob-step-sub">Your current weight helps us calibrate calorie targets and progression.</div>
+
+      <div class="ob-weight-row">
+        <div class="field">
+          <label id="obWeightLabel">Current weight (stone)</label>
+          <input type="number" id="obWeight" placeholder="e.g. 13.5" step="0.5" min="3" max="60">
+        </div>
+        <div class="ob-unit-toggle">
+          <button class="ob-unit-btn active" id="obUnitStone" onclick="setObUnit('stone',this)">st</button>
+          <button class="ob-unit-btn" id="obUnitKg" onclick="setObUnit('kg',this)">kg</button>
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom:0.5rem">
+        <label>Your main goal</label>
+      </div>
+      <div class="ob-options cols-2">
+        <div class="ob-option ob-goal" data-value="lose" onclick="selectOb(this,'ob-goal')">
+          <div class="ob-option-icon">🔥</div>
+          <div class="ob-option-title">Lose fat</div>
+          <div class="ob-option-desc">Shed weight while preserving muscle</div>
+        </div>
+        <div class="ob-option ob-goal" data-value="fitness" onclick="selectOb(this,'ob-goal')">
+          <div class="ob-option-icon">📈</div>
+          <div class="ob-option-title">Build fitness</div>
+          <div class="ob-option-desc">Improve endurance and stamina</div>
+        </div>
+        <div class="ob-option ob-goal" data-value="tone" onclick="selectOb(this,'ob-goal')">
+          <div class="ob-option-icon">💪</div>
+          <div class="ob-option-title">Tone up</div>
+          <div class="ob-option-desc">Maintain weight, improve body composition</div>
+        </div>
+        <div class="ob-option ob-goal" data-value="event" onclick="selectOb(this,'ob-goal')">
+          <div class="ob-option-icon">🏁</div>
+          <div class="ob-option-title">Train for an event</div>
+          <div class="ob-option-desc">Race, holiday, or specific challenge</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Step 2: Fitness level ───────────────────────────────── -->
+    <div class="ob-step" id="obStep2">
+      <div class="ob-step-title">How fit are you right now?</div>
+      <div class="ob-step-sub">Be honest — the plan is more effective when it starts at the right level.</div>
+      <div class="ob-options cols-3">
+        <div class="ob-option ob-fitness" data-value="beginner" onclick="selectOb(this,'ob-fitness')">
+          <div class="ob-option-icon">🌱</div>
+          <div class="ob-option-title">Beginner</div>
+          <div class="ob-option-desc">Rarely exercise, or returning after a break</div>
+        </div>
+        <div class="ob-option ob-fitness" data-value="intermediate" onclick="selectOb(this,'ob-fitness')">
+          <div class="ob-option-icon">🏃</div>
+          <div class="ob-option-title">Intermediate</div>
+          <div class="ob-option-desc">Active 2–3× per week, reasonably fit</div>
+        </div>
+        <div class="ob-option ob-fitness" data-value="advanced" onclick="selectOb(this,'ob-fitness')">
+          <div class="ob-option-icon">⚡</div>
+          <div class="ob-option-title">Advanced</div>
+          <div class="ob-option-desc">Train regularly, comfortable at high intensity</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Step 3: Equipment ───────────────────────────────────── -->
+    <div class="ob-step" id="obStep3">
+      <div class="ob-step-title">What do you have available?</div>
+      <div class="ob-step-sub">Select everything you can realistically use. Your plan will be built around this.</div>
+      <div class="ob-checks">
+        <div class="ob-check ob-equip" data-value="outdoor" onclick="toggleObCheck(this)">
+          <div class="ob-check-box">✓</div>
+          <div>
+            <div class="ob-check-label">🏃 Outdoor running</div>
+            <div class="ob-check-sub">Parks, roads, trails</div>
+          </div>
+        </div>
+        <div class="ob-check ob-equip" data-value="bike" onclick="toggleObCheck(this)">
+          <div class="ob-check-box">✓</div>
+          <div>
+            <div class="ob-check-label">🚴 Bike</div>
+            <div class="ob-check-sub">Road bike, indoor trainer</div>
+          </div>
+        </div>
+        <div class="ob-check ob-equip" data-value="gym" onclick="toggleObCheck(this)">
+          <div class="ob-check-box">✓</div>
+          <div>
+            <div class="ob-check-label">🏋️ Gym access</div>
+            <div class="ob-check-sub">Weights, machines, treadmill</div>
+          </div>
+        </div>
+        <div class="ob-check ob-equip" data-value="pullup" onclick="toggleObCheck(this)">
+          <div class="ob-check-box">✓</div>
+          <div>
+            <div class="ob-check-label">🔧 Pull-up bar</div>
+            <div class="ob-check-sub">Home bar or park bars</div>
+          </div>
+        </div>
+        <div class="ob-check ob-equip" data-value="pool" onclick="toggleObCheck(this)">
+          <div class="ob-check-box">✓</div>
+          <div>
+            <div class="ob-check-label">🏊 Swimming pool</div>
+            <div class="ob-check-sub">Local pool or open water</div>
+          </div>
+        </div>
+        <div class="ob-check ob-equip" data-value="home" onclick="toggleObCheck(this)">
+          <div class="ob-check-box">✓</div>
+          <div>
+            <div class="ob-check-label">🏠 Home only</div>
+            <div class="ob-check-sub">Bodyweight, no equipment</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Step 4: Sessions per week ──────────────────────────── -->
+    <div class="ob-step" id="obStep4">
+      <div class="ob-step-title">How many sessions per week?</div>
+      <div class="ob-step-sub">Be realistic about what fits your schedule — consistency beats intensity.</div>
+      <div class="ob-options cols-3">
+        <div class="ob-option ob-sessions" data-value="3" onclick="selectOb(this,'ob-sessions')">
+          <div class="ob-option-icon">3️⃣</div>
+          <div class="ob-option-title">3 sessions</div>
+          <div class="ob-option-desc">~3–4 hrs/week. Solid base, easy to maintain</div>
+        </div>
+        <div class="ob-option ob-sessions" data-value="4" onclick="selectOb(this,'ob-sessions')">
+          <div class="ob-option-icon">4️⃣</div>
+          <div class="ob-option-title">4 sessions</div>
+          <div class="ob-option-desc">~4–5 hrs/week. Recommended for best results</div>
+        </div>
+        <div class="ob-option ob-sessions" data-value="5" onclick="selectOb(this,'ob-sessions')">
+          <div class="ob-option-icon">5️⃣</div>
+          <div class="ob-option-title">5 sessions</div>
+          <div class="ob-option-desc">~5–7 hrs/week. High commitment, fast progress</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Step 5: Target + Injuries ──────────────────────────── -->
+    <div class="ob-step" id="obStep5">
+      <div class="ob-step-title">Almost there!</div>
+      <div class="ob-step-sub">These last details help fine-tune your plan. All optional.</div>
+      <div class="ob-field-row" style="margin-bottom:1rem">
+        <div class="field" style="margin-bottom:0">
+          <label for="obTargetEvent">Target event or goal <span class="ob-optional">optional</span></label>
+          <input type="text" id="obTargetEvent" placeholder="e.g. Summer holiday, 5K race">
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label for="obTargetDate">Target date <span class="ob-optional">optional</span></label>
+          <input type="date" id="obTargetDate">
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="obInjuries">Injuries or limitations <span class="ob-optional">optional</span></label>
+        <textarea id="obInjuries" placeholder="e.g. Bad left knee, occasional lower back pain — we'll adapt sessions around these" style="min-height:90px"></textarea>
+      </div>
+    </div>
+
+    <!-- Error message -->
+    <div class="ob-error" id="obError"></div>
+
+    <!-- Nav -->
+    <div class="ob-nav">
+      <button class="btn btn-secondary" id="obBackBtn" onclick="obPrev()" style="visibility:hidden">← Back</button>
+      <span class="ob-step-count" id="obStepCount">Step 1 of 6</span>
+      <button class="btn btn-primary" id="obNextBtn" onclick="obNext()">Next →</button>
+    </div>
+
+  </div>
+</div>
+
 <!-- Auth loading overlay -->
 <div id="authGate" style="position:fixed;inset:0;background:#F7F5F0;z-index:9999;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:24px;color:#1A1714">FitPlanner</div>
 
@@ -776,6 +1141,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 
 <script>
 // ── FIREBASE ──────────────────────────────────────────────────────
+let userProfile = null;   // populated after onboarding or loaded from Firestore
 const firebaseConfig = {
   apiKey: "AIzaSyBK3EnrgDM5wsWhP0-QmgzhQnOdEH7nn_0",
   authDomain: "fitplanner-afa30.firebaseapp.com",
@@ -1662,6 +2028,136 @@ function showPage(page) {
   weekNav.style.display = isPlanner ? 'flex' : 'none';
 }
 
+// ── ONBOARDING ────────────────────────────────────────────────────
+const OB_TOTAL = 6;
+let obStep = 0;
+let obUnit = 'stone';
+
+function showOnboarding() {
+  document.getElementById('onboardingOverlay').classList.add('open');
+  goToObStep(0);
+  // Pre-fill today's date + 56 days as suggested target
+  const suggested = new Date();
+  suggested.setDate(suggested.getDate() + 56);
+  document.getElementById('obTargetDate').value = suggested.toISOString().split('T')[0];
+}
+
+function hideOnboarding() {
+  document.getElementById('onboardingOverlay').classList.remove('open');
+}
+
+function goToObStep(n) {
+  obStep = n;
+  document.querySelectorAll('.ob-step').forEach((el, i) => el.classList.toggle('active', i === n));
+  document.querySelectorAll('.ob-dot').forEach((el, i) => {
+    el.classList.toggle('active', i === n);
+    el.classList.toggle('done', i < n);
+  });
+  document.getElementById('obBackBtn').style.visibility = n === 0 ? 'hidden' : 'visible';
+  document.getElementById('obNextBtn').textContent = n === OB_TOTAL - 1 ? '✓ Build my plan' : 'Next →';
+  document.getElementById('obStepCount').textContent = `Step ${n + 1} of ${OB_TOTAL}`;
+  obClearError();
+  document.getElementById('onboardingOverlay').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function obNext() {
+  if (!obValidate()) return;
+  if (obStep < OB_TOTAL - 1) goToObStep(obStep + 1);
+  else obFinish();
+}
+
+function obPrev() {
+  if (obStep > 0) goToObStep(obStep - 1);
+}
+
+function obValidate() {
+  obClearError();
+  if (obStep === 0) {
+    if (!document.getElementById('obName').value.trim()) return obErr('Please enter your name.');
+    const age = parseInt(document.getElementById('obAge').value);
+    if (!age || age < 10 || age > 100) return obErr('Please enter a valid age.');
+  }
+  if (obStep === 1) {
+    const w = parseFloat(document.getElementById('obWeight').value);
+    if (!w || w <= 0) return obErr('Please enter your current weight.');
+    if (!document.querySelector('.ob-goal.selected')) return obErr('Please choose a goal.');
+  }
+  if (obStep === 2) {
+    if (!document.querySelector('.ob-fitness.selected')) return obErr('Please select your fitness level.');
+  }
+  if (obStep === 3) {
+    if (!document.querySelector('.ob-equip.checked')) return obErr('Please select at least one option.');
+  }
+  if (obStep === 4) {
+    if (!document.querySelector('.ob-sessions.selected')) return obErr('Please choose how many sessions per week.');
+  }
+  return true;
+}
+
+function obErr(msg) {
+  const el = document.getElementById('obError');
+  el.textContent = msg;
+  el.classList.add('show');
+  return false;
+}
+function obClearError() {
+  document.getElementById('obError').classList.remove('show');
+}
+
+function selectOb(el, groupClass) {
+  document.querySelectorAll('.' + groupClass).forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function toggleObCheck(el) {
+  el.classList.toggle('checked');
+}
+
+function setObUnit(unit, btn) {
+  obUnit = unit;
+  document.querySelectorAll('.ob-unit-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const lbl = document.getElementById('obWeightLabel');
+  const inp = document.getElementById('obWeight');
+  lbl.textContent = `Current weight (${unit === 'stone' ? 'stone' : 'kg'})`;
+  inp.placeholder = unit === 'stone' ? 'e.g. 13.5' : 'e.g. 86';
+  inp.step = unit === 'stone' ? '0.5' : '1';
+}
+
+function obFinish() {
+  const name = document.getElementById('obName').value.trim();
+  const age  = parseInt(document.getElementById('obAge').value);
+  const weightRaw = parseFloat(document.getElementById('obWeight').value);
+  const weightKg  = obUnit === 'stone' ? weightRaw * 6.35029 : weightRaw;
+  const weightSt  = obUnit === 'stone' ? weightRaw : weightRaw / 6.35029;
+  const goal         = document.querySelector('.ob-goal.selected')?.dataset.value || 'lose';
+  const fitnessLevel = document.querySelector('.ob-fitness.selected')?.dataset.value || 'intermediate';
+  const equipment    = [...document.querySelectorAll('.ob-equip.checked')].map(e => e.dataset.value);
+  const sessionsPerWeek = parseInt(document.querySelector('.ob-sessions.selected')?.dataset.value || '4');
+  const targetEvent  = document.getElementById('obTargetEvent').value.trim();
+  const targetDate   = document.getElementById('obTargetDate').value;
+  const injuries     = document.getElementById('obInjuries').value.trim();
+
+  userProfile = {
+    name, age, weightRaw, weightUnit: obUnit, weightKg, weightSt,
+    goal, fitnessLevel, equipment, sessionsPerWeek,
+    targetEvent, targetDate, injuries,
+    createdAt: new Date().toISOString()
+  };
+
+  // Persist profile alongside plan (merge so we don't clobber events)
+  if (currentUser) {
+    db.collection('plans').doc(currentUser.uid).set({
+      profile: userProfile,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  }
+
+  hideOnboarding();
+  initEvents();
+  renderAll();
+}
+
 // ── INIT ─────────────────────────────────────────────────────────
 auth.onAuthStateChanged(user => {
   if (!user) { window.location.href = 'index.html'; return; }
@@ -1669,10 +2165,22 @@ auth.onAuthStateChanged(user => {
   const emailEl = document.getElementById('userEmail');
   if (emailEl) emailEl.textContent = user.email;
   document.getElementById('authGate').style.display = 'none';
+
+  // URL-shared plan takes priority — skip onboarding
   if (loadFromUrl()) { renderAll(); return; }
+
   db.collection('plans').doc(user.uid).get().then(doc => {
-    if (doc.exists && doc.data().events) {
-      try { Object.assign(events, JSON.parse(doc.data().events)); } catch(e) { initEvents(); }
+    if (!doc.exists) {
+      // Brand new user — run onboarding
+      showOnboarding();
+      return;
+    }
+    const data = doc.data();
+    // Load profile if present (returning user)
+    if (data.profile) userProfile = data.profile;
+    // Load events
+    if (data.events) {
+      try { Object.assign(events, JSON.parse(data.events)); } catch(e) { initEvents(); }
     } else {
       initEvents();
     }
