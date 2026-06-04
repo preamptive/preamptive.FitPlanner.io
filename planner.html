@@ -2017,7 +2017,12 @@ function generateInitEvents(p, fromWeek = 1) {
 function uid() { return Math.random().toString(36).slice(2); }
 
 // ── RENDER ────────────────────────────────────────────────────────
-const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+// Day labels rotate to match whatever day START_DATE falls on
+const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function getDays() {
+  const dow = START_DATE.getDay(); // 0=Sun … 6=Sat
+  return Array.from({length: 7}, (_, i) => DAY_NAMES[(dow + i) % 7]);
+}
 const SLOTS = ['Morning','Midday','Afternoon','Evening'];
 
 function getDate(week, dayIdx) {
@@ -2092,7 +2097,7 @@ function renderWeekView() {
   let html = `<div class="week-view">`;
   // header row
   html += `<div class="cal-header" style="background:var(--surface2)"></div>`;
-  DAYS.forEach((d,i) => {
+  getDays().forEach((d,i) => {
     const date = getDate(currentWeek, i);
     const todayCls = isToday(date) ? 'today' : '';
     const todayCol = isToday(date) ? ' today-col' : '';
@@ -2126,7 +2131,7 @@ function renderWeekView() {
 function renderMonthView() {
   const cv = document.getElementById('calendarView');
   let html = `<div class="month-view">`;
-  DAYS.forEach(d => html += `<div class="month-header">${d}</div>`);
+  getDays().forEach(d => html += `<div class="month-header">${d}</div>`);
   const totalWeeks = userProfile?.programWeeks || 8;
   for(let w = 1; w <= totalWeeks; w++) {
     for(let d=0;d<7;d++) {
@@ -2523,17 +2528,10 @@ function nextPlanMonday() {
 }
 
 function planStartDate(p) {
-  // Prefer the explicit startDate the user chose; fall back to next Monday from createdAt
-  if (p.startDate) {
-    const d = new Date(p.startDate);
-    d.setHours(0, 0, 0, 0);
-    return d;
-  }
-  const d = new Date(p.createdAt || Date.now());
+  // Always use the explicit date the user chose — no day-of-week snapping
+  const raw = p.startDate || p.createdAt || new Date().toISOString();
+  const d = new Date(raw);
   d.setHours(0, 0, 0, 0);
-  const dow = d.getDay();
-  const toMon = dow === 1 ? 0 : dow === 0 ? 1 : 8 - dow;
-  d.setDate(d.getDate() + toMon);
   return d;
 }
 
@@ -2719,9 +2717,9 @@ function showOnboarding(editMode = false) {
     ? 'Adjust any details below. Your saved plan stays untouched — only the info page and sidebar will update immediately.'
     : 'A few quick questions and we\'ll create a personalised 8-week fitness programme just for you.';
 
-  // Default start date to next Monday (only for new users)
+  // Default start date to today (only for new users)
   if (!editMode) {
-    document.getElementById('obStartDate').value = nextPlanMonday().toISOString().split('T')[0];
+    document.getElementById('obStartDate').value = new Date().toISOString().split('T')[0];
     // Default 8 weeks selected
     document.querySelectorAll('.ob-duration').forEach(el =>
       el.classList.toggle('selected', el.dataset.value === '8'));
