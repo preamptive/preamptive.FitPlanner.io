@@ -137,6 +137,12 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 .day-col:last-child { border-right: none; }
 .cal-header.today-col { background: #EAF5EF; }
 .day-col.today-col { background: #F3FAF6; }
+.cal-header.before-plan .day-num,
+.cal-header.before-plan .day-name { color: var(--border-strong); }
+.day-col.before-plan { background: var(--surface2); pointer-events: none; }
+.day-col.before-plan .day-slot { background: transparent; cursor: default; }
+.month-day.before-plan { background: var(--surface2); pointer-events: none; }
+.month-day.before-plan .month-day-num { color: var(--border-strong); }
 .day-slot {
   height: 80px;
   border-bottom: 1px solid var(--border);
@@ -1978,11 +1984,25 @@ function generateInitEvents(p, fromWeek = 1) {
   function pick(arr, seed) { return arr[seed % arr.length]; }
 
   const totalWeeks = p.programWeeks || 8;
+
+  // If start date is mid-week, find first valid day index in week 1 (Mon=0…Sun=6)
+  let startDayOffset = 0;
+  if (p.startDate && fromWeek === 1) {
+    const actualStart = new Date(p.startDate);
+    actualStart.setHours(0, 0, 0, 0);
+    const monday = planStartDate(p);
+    const diff = Math.round((actualStart - monday) / 864e5);
+    startDayOffset = Math.max(0, Math.min(6, diff));
+  }
+
   for (let w = fromWeek; w <= totalWeeks; w++) {
     const weekLib = WORKOUT_LIBRARY[w] || [];
     let sIdx = 0; // session cursor
 
     for (let d = 0; d < 7; d++) {
+      // Leave days before the actual start blank in the first week
+      if (w === fromWeek && d < startDayOffset) continue;
+
       const seed = w * 7 + d;
       const isWorkout = workoutDays.includes(d) && sIdx < weekLib.length;
 
@@ -2017,12 +2037,7 @@ function generateInitEvents(p, fromWeek = 1) {
 function uid() { return Math.random().toString(36).slice(2); }
 
 // ── RENDER ────────────────────────────────────────────────────────
-// Day labels rotate to match whatever day START_DATE falls on
-const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-function getDays() {
-  const dow = START_DATE.getDay(); // 0=Sun … 6=Sat
-  return Array.from({length: 7}, (_, i) => DAY_NAMES[(dow + i) % 7]);
-}
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const SLOTS = ['Morning','Midday','Afternoon','Evening'];
 
 function getDate(week, dayIdx) {
@@ -2097,11 +2112,12 @@ function renderWeekView() {
   let html = `<div class="week-view">`;
   // header row
   html += `<div class="cal-header" style="background:var(--surface2)"></div>`;
-  getDays().forEach((d,i) => {
-    const date = getDate(currentWeek, i);
+  DAYS.forEach((d,i) => {
+    const date    = getDate(currentWeek, i);
+    const before  = ACTUAL_START_DATE && date < ACTUAL_START_DATE;
     const todayCls = isToday(date) ? 'today' : '';
-    const todayCol = isToday(date) ? ' today-col' : '';
-    html += `<div class="cal-header${todayCol}"><div class="day-header">
+    const colCls   = before ? ' before-plan' : isToday(date) ? ' today-col' : '';
+    html += `<div class="cal-header${colCls}"><div class="day-header">
       <div class="day-name">${d}</div>
       <div class="day-num ${todayCls}">${date.getDate()}</div>
     </div></div>`;
@@ -2110,10 +2126,12 @@ function renderWeekView() {
   SLOTS.forEach((slot,si) => {
     html += `<div class="time-col"><div class="time-label">${slot}</div></div>`;
     for(let d=0;d<7;d++) {
-      const key = `w${currentWeek}d${d}s${si}`;
+      const key     = `w${currentWeek}d${d}s${si}`;
       const slotEvs = (events[key]||[]);
-      const todayCol = isToday(getDate(currentWeek, d)) ? ' today-col' : '';
-      html += `<div class="day-col${todayCol}"><div class="day-slot" 
+      const date    = getDate(currentWeek, d);
+      const before  = ACTUAL_START_DATE && date < ACTUAL_START_DATE;
+      const colCls  = before ? ' before-plan' : isToday(date) ? ' today-col' : '';
+      html += `<div class="day-col${colCls}"><div class="day-slot" 
         data-key="${key}"
         ondragover="allowDrop(event)"
         ondrop="dropEvent(event,'${key}')"
@@ -2131,14 +2149,15 @@ function renderWeekView() {
 function renderMonthView() {
   const cv = document.getElementById('calendarView');
   let html = `<div class="month-view">`;
-  getDays().forEach(d => html += `<div class="month-header">${d}</div>`);
+  DAYS.forEach(d => html += `<div class="month-header">${d}</div>`);
   const totalWeeks = userProfile?.programWeeks || 8;
   for(let w = 1; w <= totalWeeks; w++) {
     for(let d=0;d<7;d++) {
-      const date = getDate(w,d);
+      const date    = getDate(w,d);
+      const before  = ACTUAL_START_DATE && date < ACTUAL_START_DATE;
       const todayCls = isToday(date)?'today-num':'';
-      const allEvs = getAllDayEvents(w,d);
-      html += `<div class="month-day"
+      const allEvs  = getAllDayEvents(w,d);
+      html += `<div class="month-day${before?' before-plan':''}"
         data-key="w${w}d${d}s0"
         ondragover="allowDrop(event)"
         ondrop="dropEventMonth(event,${w},${d})"
@@ -2527,13 +2546,22 @@ function nextPlanMonday() {
   return d;
 }
 
+// The Monday that anchors the calendar grid for this plan.
+// Always snapped back to Monday so the Mon-Sun columns line up correctly.
 function planStartDate(p) {
-  // Always use the explicit date the user chose — no day-of-week snapping
   const raw = p.startDate || p.createdAt || new Date().toISOString();
   const d = new Date(raw);
   d.setHours(0, 0, 0, 0);
+  // Snap back to Monday (getDay: 0=Sun,1=Mon…6=Sat)
+  const dow = d.getDay();
+  const toMon = dow === 0 ? -6 : 1 - dow;
+  d.setDate(d.getDate() + toMon);
   return d;
 }
+
+// The actual day the user chose to begin (may be mid-week).
+// Days in week 1 before this date are greyed out and left empty.
+let ACTUAL_START_DATE = null;
 
 function shiftDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
 
@@ -2567,7 +2595,14 @@ function personalizeInfoPage(p) {
   if (tuneBtn) tuneBtn.style.display = '';
 
   // ── START DATE ────────────────────────────────────────────────────
-  START_DATE = planStartDate(p);
+  START_DATE = planStartDate(p); // Monday of the chosen week
+  // Actual chosen day (may be mid-week; days before it in week 1 are blank)
+  if (p.startDate) {
+    ACTUAL_START_DATE = new Date(p.startDate);
+    ACTUAL_START_DATE.setHours(0, 0, 0, 0);
+  } else {
+    ACTUAL_START_DATE = new Date(START_DATE); // no offset
+  }
 
   // ── HERO ──────────────────────────────────────────────────────────
   const goalMap = { lose: 'weight loss', tone: 'body composition', fitness: 'fitness', event: 'performance' };
