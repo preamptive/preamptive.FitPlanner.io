@@ -1185,7 +1185,7 @@ function toggleSidebar() {
 // ── DATA ─────────────────────────────────────────────────────────
 const START_DATE = new Date(2026, 5, 3); // 3 June 2026
 
-const WORKOUT_LIBRARY = {
+let WORKOUT_LIBRARY = {
   1: [
     {title:'Easy walk-run',type:'workout',meta:'30 min · conversational pace',notes:'Run 5 min, walk 1 min. Flat park route. Zone 2.'},
     {title:'Bike LISS',type:'liss',meta:'35 min · 80–90 rpm',notes:'Easy cycling, flat terrain. Knee-friendly aerobic base.'},
@@ -1521,6 +1521,346 @@ function initEvents() {
   addEv('w8d6s1', work(8,3)); // Easy bike + stretch
   addEv('w8d6s2', meal('Chicken quinoa bowl'));
   addEv('w8d6s3', meal('Greek yogurt + berries'));
+}
+
+// ── PLAN GENERATOR ────────────────────────────────────────────────
+// Builds a personalised WORKOUT_LIBRARY from a user profile object.
+// Called once on first login (after onboarding) and again on each
+// return login so the sidebar reflects the user's setup.
+function generateWorkoutLibrary(p) {
+  const hasRun  = p.equipment.includes('outdoor');
+  const hasBike = p.equipment.includes('bike');
+  const hasGym  = p.equipment.includes('gym');
+  const hasBar  = p.equipment.includes('pullup') || hasGym;
+  const hasPool = p.equipment.includes('pool');
+  const beg = p.fitnessLevel === 'beginner';
+  const adv = p.fitnessLevel === 'advanced';
+  const sessions = p.sessionsPerWeek || 4;
+
+  // Easy-cardio durations by week (minutes), scaled to fitness level
+  const easyDur = beg ? [20,22,25,28,30,22,34,26]
+                : adv ? [40,45,50,52,52,38,57,42]
+                      : [30,35,40,42,40,28,50,36];
+  const bikeDur = beg ? [25,28,32,35,38,28,42,30]
+                : adv ? [45,50,55,60,62,45,66,46]
+                      : [35,40,45,55,56,40,62,44];
+  // Tempo block (hard part only) and interval reps
+  const tempoDur = beg ? [10,12,15,16,18,12,20,15]
+                 : adv ? [18,20,22,25,25,18,30,20]
+                       : [15,15,18,20,22,12,25,15];
+  const intReps  = [6,8,8,5,8,5,10,6];
+
+  const lib = {};
+
+  for (let w = 1; w <= 8; w++) {
+    const isDeload = w === 6;
+    const isTaper  = w === 8;
+    const isPeak   = w === 7;
+    const isFasted = w >= 4 && !beg && !isDeload && !isTaper;
+    const recov    = beg ? 3 : 2;      // recovery mins per 1-min interval
+    const reps     = intReps[w - 1];
+    const week     = [];
+
+    // ── A: Primary easy cardio ────────────────────────────────
+    if (hasRun) {
+      const dur = easyDur[w - 1] + (isPeak ? 4 : 0);
+      week.push({
+        title: beg && w <= 2  ? 'Easy walk-run'
+             : isDeload       ? 'Easy run (deload)'
+             : isTaper        ? 'Easy run (taper)'
+             : isPeak         ? 'Long run'
+             : isFasted       ? 'Fasted easy run'
+                              : 'Easy run',
+        type: 'workout',
+        meta: `${dur} min · ${isFasted ? 'before breakfast · ' : ''}zone 2`,
+        notes: beg && w <= 2
+          ? `Run ${Math.round(dur * 0.6)} min / walk ${Math.round(dur * 0.4)} min. Flat route, conversational pace.`
+          : isFasted
+          ? `Water or black coffee only before. Zone 2 throughout. Eat within 30 min of finishing.`
+          : isDeload ? `Deload week — drop effort 20%. Completing it is the win.`
+          : isTaper  ? `Very easy pace. Arrive at your target feeling fresh.`
+                     : `Continuous easy run. Zone 2 — conversational pace throughout.`,
+      });
+    } else if (hasBike) {
+      const dur = bikeDur[w - 1] + (isPeak ? 5 : 0);
+      week.push({
+        title: isDeload ? 'Easy bike (deload)'
+             : isTaper  ? 'Easy bike (taper)'
+             : isPeak   ? 'Long bike ride'
+                        : 'Easy bike ride',
+        type: 'liss',
+        meta: `${dur} min · zone 2`,
+        notes: isDeload ? `Deload — no hard efforts. Spin the legs. Drop intensity 20%.`
+             : isTaper  ? `Easy ride. You've done the hard work.`
+                        : `Flat or gentle terrain. Zone 2. High cadence (80–90 rpm).`,
+      });
+    } else if (hasPool) {
+      const dur = easyDur[w - 1];
+      week.push({
+        title: isDeload ? 'Easy swim (deload)' : 'Easy swim',
+        type: 'liss',
+        meta: `${dur} min · steady pace`,
+        notes: `Easy laps, mix of strokes. Zone 2 breathing. ${isDeload ? 'Deload — take it easy.' : ''}`,
+      });
+    } else {
+      const dur = easyDur[w - 1] + 10;
+      week.push({
+        title: isDeload ? 'Brisk walk (deload)' : 'Brisk walk',
+        type: 'workout',
+        meta: `${dur} min`,
+        notes: isDeload ? `Gentle pace this week — recovery is the goal.`
+                        : `Fast-paced walk, hills if available. Heart rate raised but sustainable.`,
+      });
+    }
+
+    // ── B: Intervals ──────────────────────────────────────────
+    if (hasRun) {
+      week.push({
+        title: isDeload        ? 'Easy intervals (deload)'
+             : w === 4        ? 'Pyramid intervals'
+             : w === 5 && adv ? 'Tabata run'
+             : isPeak         ? 'Hard intervals'
+                              : 'Run intervals',
+        type: 'interval',
+        meta: `~${25 + (w > 4 ? 5 : 0)} min`,
+        notes: w === 4
+          ? `Warm-up 5 min. 1–2–3–2–1 min hard / equal rest. Cool-down 5 min.`
+          : w === 5 && adv
+          ? `10 min warm-up. 8×: 20 sec max / 10 sec rest. 10 min cool-down.`
+          : isDeload
+          ? `Warm-up 5 min. ${Math.round(reps * 0.6)}×1 min easy effort / ${recov} min walk. Cool-down 5 min.`
+          : `Warm-up 5 min. ${reps}×1 min at 8–9/10 / ${recov} min easy. Cool-down 5 min.`,
+      });
+    } else if (hasBike) {
+      week.push({
+        title: isDeload ? 'Easy bike intervals (deload)'
+             : w === 5  ? 'Tabata bike'
+                        : 'Bike intervals',
+        type: 'interval',
+        meta: `~${25 + (w > 3 ? 5 : 0)} min`,
+        notes: w === 5
+          ? `10 min warm-up. 8×: 20 sec max / 10 sec rest. Seated throughout. 10 min cool-down.`
+          : isDeload
+          ? `Warm-up 5 min. ${Math.round(reps * 0.6)}×45 sec / 90 sec easy. Cool-down.`
+          : `Warm-up 5 min. ${reps}×45 sec sprint / 90 sec easy. Seated only. Cool-down.`,
+      });
+    } else if (hasPool) {
+      week.push({
+        title: 'Swim intervals',
+        type: 'interval',
+        meta: `~${25 + (w > 3 ? 5 : 0)} min`,
+        notes: `200m easy warm-up. ${reps}×50m hard / 30 sec rest. 100m cool-down.`,
+      });
+    } else {
+      week.push({
+        title: isDeload ? 'Light HIIT (deload)' : isPeak ? 'HIIT circuit (peak)' : 'HIIT circuit',
+        type: 'interval',
+        meta: `~${20 + w * 2} min`,
+        notes: isDeload
+          ? `${Math.round(reps * 0.5)} rounds: 30 sec work / 30 sec rest. Squats, high knees, push-ups.`
+          : `${reps} rounds: 40 sec work / 20 sec rest. Burpees, squat jumps, mountain climbers, high knees.`,
+      });
+    }
+
+    // ── C: Tempo / sustained effort (4–5 sessions only) ───────
+    if (sessions >= 4) {
+      const tDur = tempoDur[w - 1];
+      if (hasRun) {
+        week.push({
+          title: isDeload ? 'Short tempo (deload)'
+               : isTaper  ? 'Moderate tempo (taper)'
+               : isPeak   ? 'Race-pace tempo'
+               : w === 5  ? 'Hilly run / tempo'
+                          : 'Tempo run',
+          type: 'tempo',
+          meta: `~${tDur + 10} min total`,
+          notes: isDeload
+            ? `5 min easy, ${tDur} min at 6/10 (focus on form), 5 min easy.`
+            : w === 5
+            ? `5 min easy, ${tDur} min over rolling hills or flat at 7/10, 5 min easy.`
+            : `5 min easy, ${tDur} min at ${beg ? '6' : isPeak ? '8' : '7'}/10, 5 min easy.`,
+        });
+      } else if (hasBike) {
+        week.push({
+          title: isDeload ? 'Bike tempo (deload)' : isTaper ? 'Bike tempo (taper)' : 'Bike tempo',
+          type: 'tempo',
+          meta: `~${tDur + 10} min`,
+          notes: isDeload
+            ? `5 min easy, ${tDur} min at 6/10, 5 min easy.`
+            : `5 min easy, ${tDur} min sustained at 7/10, 5 min easy.`,
+        });
+      } else if (hasPool) {
+        week.push({
+          title: 'Swim tempo',
+          type: 'tempo',
+          meta: `~${tDur + 10} min`,
+          notes: `5 min easy, ${tDur} min at sustained 7/10 effort, 5 min easy.`,
+        });
+      } else {
+        week.push({
+          title: isDeload ? 'Light circuit (deload)' : 'Sustained circuit',
+          type: 'tempo',
+          meta: `~${tDur + 10} min`,
+          notes: isDeload
+            ? `5 min warm-up. ${tDur} min easy bodyweight circuit. Cool-down.`
+            : `5 min warm-up. ${tDur} min AMRAP: 10 squats, 8 push-ups, 10 lunges, 30 sec plank. Cool-down.`,
+        });
+      }
+    }
+
+    // ── D: Cross-train / long / recovery ─────────────────────
+    {
+      if (isDeload) {
+        week.push({
+          title: 'Mobility + light circuit',
+          type: 'rest',
+          meta: '~35 min',
+          notes: `20 min stretch / yoga flow. 2 light rounds: 10 squats, 8 push-ups, dead bugs, glute bridges.`,
+        });
+      } else if (isTaper) {
+        week.push({
+          title: hasBike ? 'Easy bike + stretch' : hasPool ? 'Easy swim + stretch' : 'Active recovery + stretch',
+          type: hasBike || hasPool ? 'liss' : 'rest',
+          meta: hasBike ? `${Math.round(bikeDur[w-1]*0.6)} min + 15 min stretch`
+                        : hasPool  ? '25 min + 15 min stretch' : '35 min',
+          notes: `Easy effort only. Follow with a full-body stretch. You\'ve done the hard work.`,
+        });
+      } else if (hasBike && hasRun) {
+        // Both run + bike: session D uses the bike for long rides
+        const dur = bikeDur[w - 1] + (isPeak ? 5 : 0);
+        week.push({
+          title: isPeak ? 'Long bike + core'
+               : w >= 4 ? 'Long bike ride'
+               : w === 3 ? 'Park circuit'
+                         : 'Long easy ride',
+          type: w === 3 ? 'cross' : 'liss',
+          meta: w === 3  ? `~40 min`
+              : isPeak  ? `${dur} min + 10 min core`
+                        : `${dur} min · zone 2`,
+          notes: w === 3
+            ? `4 rounds: ${adv?'15':'12'} squats, ${adv?'12':'10'} push-ups, ${hasBar?'6 pull-ups':'20 mountain climbers'}, 10 min walk.`
+            : isPeak
+            ? `${dur} min easy bike. Follow with: plank, dead bugs, glute bridges.`
+            : `Long steady effort. Bring water. Zone 2 throughout.`,
+        });
+      } else if (hasGym) {
+        week.push({
+          title: isPeak ? 'Full gym circuit (peak)' : 'Gym circuit',
+          type: 'cross',
+          meta: `~${35 + (w > 4 ? 5 : 0)} min`,
+          notes: `${adv?5:4} rounds: ${adv?'15':'12'} squats, ${adv?'12':'10'} push-ups, ${adv?'10':'6'} pull-ups / lat-pulldown, leg press, 30 sec plank. 90 sec rest between rounds.`,
+        });
+      } else if (hasBar) {
+        week.push({
+          title: isPeak ? 'Park circuit (peak)' : 'Bodyweight + bars circuit',
+          type: 'cross',
+          meta: `~${35 + (w > 4 ? 5 : 0)} min`,
+          notes: `${adv?5:4} rounds: ${adv?'15':'12'} squats, ${adv?'12':'10'} push-ups, ${adv?'8':'5'} pull-up negatives, 20 mountain climbers. 10 min walk cool-down.`,
+        });
+      } else if (hasBike) {
+        const dur = bikeDur[w - 1] + (isPeak ? 5 : 0);
+        week.push({
+          title: isPeak ? 'Long bike + core' : w >= 4 ? 'Long bike ride' : 'Long easy ride',
+          type: 'liss',
+          meta: isPeak ? `${dur} min + 10 min core` : `${dur} min · zone 2`,
+          notes: isPeak
+            ? `${dur} min easy ride. Follow with: plank, dead bugs, glute bridges.`
+            : `Long steady ride. Bring water. Zone 2 throughout.`,
+        });
+      } else if (hasPool) {
+        week.push({
+          title: 'Long swim',
+          type: 'liss',
+          meta: `~${easyDur[w-1]+10} min`,
+          notes: `Long easy swim. Mix strokes. Steady sustainable pace throughout.`,
+        });
+      } else {
+        week.push({
+          title: 'Active recovery',
+          type: 'rest',
+          meta: '~35 min',
+          notes: `Easy walk 20 min. 3 rounds: 10 squats, 8 push-ups, dead bugs, glute bridges, 30 sec plank.`,
+        });
+      }
+    }
+
+    // ── E: 5th session — extra easy (5/week only) ────────────
+    if (sessions >= 5) {
+      week.push({
+        title: hasRun  ? 'Easy recovery run'
+             : hasBike ? 'Easy spin'
+                       : 'Active recovery walk',
+        type: hasRun ? 'workout' : hasBike ? 'liss' : 'rest',
+        meta: hasRun  ? `${Math.round(easyDur[w-1]*0.65)} min · very easy`
+            : hasBike ? `${Math.round(bikeDur[w-1]*0.55)} min · very easy`
+                      : '30 min',
+        notes: `Bonus session — very easy effort. If legs are heavy, skip it or just walk. Consistency over heroics.`,
+      });
+    }
+
+    lib[w] = week;
+  }
+  return lib;
+}
+
+// Populates events from a generated workout library.
+// Called instead of initEvents() for users who went through onboarding.
+function generateInitEvents(p) {
+  // Update the global library so the sidebar also shows personalised workouts
+  WORKOUT_LIBRARY = generateWorkoutLibrary(p);
+  events = {};
+
+  // Workout day patterns (0=Mon … 6=Sun)
+  const dayPatterns = {
+    3: [0, 2, 4],       // Mon, Wed, Fri
+    4: [0, 2, 4, 6],    // Mon, Wed, Fri, Sun
+    5: [0, 1, 3, 4, 6], // Mon, Tue, Thu, Fri, Sun
+  };
+  const workoutDays = dayPatterns[p.sessionsPerWeek] || dayPatterns[4];
+
+  // Meal pools for variety
+  const mornWork = ['Egg scramble + toast', 'Overnight oats'];
+  const mornRest = ['Overnight oats', 'Egg scramble + toast'];
+  const midWork  = ['Grilled chicken + rice', 'Chicken quinoa bowl', 'Salmon + quinoa salad'];
+  const midRest  = ['Tuna wrap', 'Chicken quinoa bowl', 'Turkey mince pasta'];
+  const evenAny  = ['Greek yogurt + berries', 'Cottage cheese + veg', 'Baked cod + sweet potato'];
+
+  function pick(arr, seed) { return arr[seed % arr.length]; }
+
+  for (let w = 1; w <= 8; w++) {
+    const weekLib = WORKOUT_LIBRARY[w] || [];
+    let sIdx = 0; // session cursor
+
+    for (let d = 0; d < 7; d++) {
+      const seed = w * 7 + d;
+      const isWorkout = workoutDays.includes(d) && sIdx < weekLib.length;
+
+      if (isWorkout) {
+        const sess = weekLib[sIdx++];
+        const fasted = sess.title.toLowerCase().includes('fasted');
+
+        if (fasted) {
+          addEv(`w${w}d${d}s0`, sess);                              // workout before food
+          addEv(`w${w}d${d}s1`, meal('Protein smoothie'));          // post-run
+          addEv(`w${w}d${d}s2`, meal(pick(midWork, seed)));
+          addEv(`w${w}d${d}s3`, meal(pick(evenAny, seed)));
+        } else {
+          addEv(`w${w}d${d}s0`, meal(pick(mornWork, seed)));
+          if (w >= 3 && p.fitnessLevel !== 'beginner') {
+            addEv(`w${w}d${d}s0`, meal('Pre-workout snack'));
+          }
+          addEv(`w${w}d${d}s1`, sess);
+          addEv(`w${w}d${d}s2`, meal(pick(midWork, seed)));
+          addEv(`w${w}d${d}s3`, meal(pick(evenAny, seed)));
+        }
+      } else {
+        // Rest day
+        addEv(`w${w}d${d}s0`, meal(pick(mornRest, seed)));
+        addEv(`w${w}d${d}s2`, meal(pick(midRest,  seed)));
+        addEv(`w${w}d${d}s3`, meal(pick(evenAny,  seed + 1)));
+      }
+    }
+  }
 }
 
 function uid() { return Math.random().toString(36).slice(2); }
@@ -2154,7 +2494,7 @@ function obFinish() {
   }
 
   hideOnboarding();
-  initEvents();
+  generateInitEvents(userProfile);
   renderAll();
 }
 
@@ -2177,15 +2517,25 @@ auth.onAuthStateChanged(user => {
     }
     const data = doc.data();
     // Load profile if present (returning user)
-    if (data.profile) userProfile = data.profile;
+    if (data.profile) {
+      userProfile = data.profile;
+      // Rebuild the personalised workout library for the sidebar
+      WORKOUT_LIBRARY = generateWorkoutLibrary(userProfile);
+    }
     // Load events
     if (data.events) {
-      try { Object.assign(events, JSON.parse(data.events)); } catch(e) { initEvents(); }
+      try { Object.assign(events, JSON.parse(data.events)); } catch(e) {
+        userProfile ? generateInitEvents(userProfile) : initEvents();
+      }
     } else {
-      initEvents();
+      // Has profile but no saved events yet — generate fresh plan
+      userProfile ? generateInitEvents(userProfile) : initEvents();
     }
     renderAll();
-  }).catch(() => { initEvents(); renderAll(); });
+  }).catch(() => {
+    userProfile ? generateInitEvents(userProfile) : initEvents();
+    renderAll();
+  });
 });
 
 document.getElementById('modalOverlay').addEventListener('click', function(e){
