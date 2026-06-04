@@ -1212,7 +1212,7 @@ function scheduleSave() {
     db.collection('plans').doc(currentUser.uid).set({
       events: JSON.stringify(events),
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    }, { merge: true }); // merge keeps the profile field intact
   }, 1500);
 }
 
