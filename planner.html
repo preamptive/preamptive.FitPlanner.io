@@ -2891,6 +2891,11 @@ auth.onAuthStateChanged(user => {
   const emailEl = document.getElementById('userEmail');
   if (emailEl) emailEl.textContent = user.email;
   document.getElementById('authGate').style.display = 'none';
+  // Show header buttons for all authenticated users
+  ['editProfileBtn','tuneBtn'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = '';
+  });
 
   // URL-shared plan takes priority — skip onboarding
   if (loadFromUrl()) { renderAll(); return; }
