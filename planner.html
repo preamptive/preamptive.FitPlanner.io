@@ -1086,23 +1086,49 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
       </div>
     </div>
 
-    <!-- ── Step 5: Target + Injuries ──────────────────────────── -->
+    <!-- ── Step 5: Dates + Length + Injuries ─────────────────── -->
     <div class="ob-step" id="obStep5">
-      <div class="ob-step-title">Almost there!</div>
-      <div class="ob-step-sub">These last details help fine-tune your plan. All optional.</div>
-      <div class="ob-field-row" style="margin-bottom:1rem">
+      <div class="ob-step-title">Dates &amp; duration</div>
+      <div class="ob-step-sub">When does your programme start, and how long do you want it to run?</div>
+
+      <div class="ob-field-row" style="margin-bottom:1.25rem">
         <div class="field" style="margin-bottom:0">
-          <label for="obTargetEvent">Target event or goal <span class="ob-optional">optional</span></label>
+          <label for="obStartDate">Start date</label>
+          <input type="date" id="obStartDate">
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <label for="obTargetEvent">Target event <span class="ob-optional">optional</span></label>
           <input type="text" id="obTargetEvent" placeholder="e.g. Summer holiday, 5K race">
         </div>
-        <div class="field" style="margin-bottom:0">
-          <label for="obTargetDate">Target date <span class="ob-optional">optional</span></label>
-          <input type="date" id="obTargetDate">
+      </div>
+
+      <div class="field" style="margin-bottom:0.5rem"><label>Programme length</label></div>
+      <div class="ob-options" style="grid-template-columns:repeat(5,1fr);margin-bottom:1.25rem">
+        <div class="ob-option ob-duration" data-value="4" onclick="selectOb(this,'ob-duration')" style="text-align:center;padding:0.75rem 0.4rem">
+          <div class="ob-option-title" style="font-size:17px;font-family:'DM Serif Display',serif">4</div>
+          <div class="ob-option-desc">weeks</div>
+        </div>
+        <div class="ob-option ob-duration" data-value="6" onclick="selectOb(this,'ob-duration')" style="text-align:center;padding:0.75rem 0.4rem">
+          <div class="ob-option-title" style="font-size:17px;font-family:'DM Serif Display',serif">6</div>
+          <div class="ob-option-desc">weeks</div>
+        </div>
+        <div class="ob-option ob-duration selected" data-value="8" onclick="selectOb(this,'ob-duration')" style="text-align:center;padding:0.75rem 0.4rem">
+          <div class="ob-option-title" style="font-size:17px;font-family:'DM Serif Display',serif">8</div>
+          <div class="ob-option-desc">weeks</div>
+        </div>
+        <div class="ob-option ob-duration" data-value="10" onclick="selectOb(this,'ob-duration')" style="text-align:center;padding:0.75rem 0.4rem">
+          <div class="ob-option-title" style="font-size:17px;font-family:'DM Serif Display',serif">10</div>
+          <div class="ob-option-desc">weeks</div>
+        </div>
+        <div class="ob-option ob-duration" data-value="12" onclick="selectOb(this,'ob-duration')" style="text-align:center;padding:0.75rem 0.4rem">
+          <div class="ob-option-title" style="font-size:17px;font-family:'DM Serif Display',serif">12</div>
+          <div class="ob-option-desc">weeks</div>
         </div>
       </div>
+
       <div class="field" style="margin-bottom:0">
         <label for="obInjuries">Injuries or limitations <span class="ob-optional">optional</span></label>
-        <textarea id="obInjuries" placeholder="e.g. Bad left knee, occasional lower back pain — we'll adapt sessions around these" style="min-height:90px"></textarea>
+        <textarea id="obInjuries" placeholder="e.g. Bad left knee, occasional lower back pain — we'll adapt sessions around these" style="min-height:80px"></textarea>
       </div>
     </div>
 
@@ -1160,6 +1186,30 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
       <div class="ob-option tune-sessions" data-value="5" onclick="selectOb(this,'tune-sessions')">
         <div class="ob-option-title">5 sessions</div>
         <div class="ob-option-desc">~5–7 hrs / week</div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom:0.5rem"><label>Programme length</label></div>
+    <div class="ob-options" style="grid-template-columns:repeat(5,1fr);margin-bottom:1.25rem">
+      <div class="ob-option tune-length" data-value="4" onclick="selectOb(this,'tune-length')" style="text-align:center;padding:0.75rem 0.4rem">
+        <div class="ob-option-title" style="font-size:17px;font-family:'DM Serif Display',serif">4</div>
+        <div class="ob-option-desc">wks</div>
+      </div>
+      <div class="ob-option tune-length" data-value="6" onclick="selectOb(this,'tune-length')" style="text-align:center;padding:0.75rem 0.4rem">
+        <div class="ob-option-title" style="font-size:17px;font-family:'DM Serif Display',serif">6</div>
+        <div class="ob-option-desc">wks</div>
+      </div>
+      <div class="ob-option tune-length" data-value="8" onclick="selectOb(this,'tune-length')" style="text-align:center;padding:0.75rem 0.4rem">
+        <div class="ob-option-title" style="font-size:17px;font-family:'DM Serif Display',serif">8</div>
+        <div class="ob-option-desc">wks</div>
+      </div>
+      <div class="ob-option tune-length" data-value="10" onclick="selectOb(this,'tune-length')" style="text-align:center;padding:0.75rem 0.4rem">
+        <div class="ob-option-title" style="font-size:17px;font-family:'DM Serif Display',serif">10</div>
+        <div class="ob-option-desc">wks</div>
+      </div>
+      <div class="ob-option tune-length" data-value="12" onclick="selectOb(this,'tune-length')" style="text-align:center;padding:0.75rem 0.4rem">
+        <div class="ob-option-title" style="font-size:17px;font-family:'DM Serif Display',serif">12</div>
+        <div class="ob-option-desc">wks</div>
       </div>
     </div>
 
@@ -1235,6 +1285,25 @@ function toggleSidebar() {
 
 // ── DATA ─────────────────────────────────────────────────────────
 let START_DATE = new Date(2026, 5, 1); // 1 June 2026 (Monday) — overridden per-user by personalizeInfoPage
+
+// ── PHASE MAPS ────────────────────────────────────────────────────
+// Defines the training phase for each week of a programme of a given length.
+const PHASE_MAPS = {
+  4:  ['build','build','peak','taper'],
+  5:  ['build','build','develop','peak','taper'],
+  6:  ['build','build','develop','develop','peak','taper'],
+  7:  ['build','build','develop','develop','develop','peak','taper'],
+  8:  ['build','build','build','develop','develop','deload','peak','taper'],
+  9:  ['build','build','build','develop','develop','develop','deload','peak','taper'],
+  10: ['build','build','build','develop','develop','develop','deload','peak','peak','taper'],
+  11: ['build','build','build','develop','develop','develop','develop','deload','peak','peak','taper'],
+  12: ['build','build','build','build','develop','develop','develop','deload','peak','peak','peak','taper'],
+};
+
+function weekType(w, total) {
+  const map = PHASE_MAPS[total] || PHASE_MAPS[8];
+  return map[w - 1] || 'build';
+}
 
 let WORKOUT_LIBRARY = {
   1: [
@@ -1587,36 +1656,64 @@ function generateWorkoutLibrary(p) {
   const beg = p.fitnessLevel === 'beginner';
   const adv = p.fitnessLevel === 'advanced';
   const sessions = p.sessionsPerWeek || 4;
-
-  // Easy-cardio durations by week (minutes), scaled to fitness level
-  const easyDur = beg ? [20,22,25,28,30,22,34,26]
-                : adv ? [40,45,50,52,52,38,57,42]
-                      : [30,35,40,42,40,28,50,36];
-  const bikeDur = beg ? [25,28,32,35,38,28,42,30]
-                : adv ? [45,50,55,60,62,45,66,46]
-                      : [35,40,45,55,56,40,62,44];
-  // Tempo block (hard part only) and interval reps
-  const tempoDur = beg ? [10,12,15,16,18,12,20,15]
-                 : adv ? [18,20,22,25,25,18,30,20]
-                       : [15,15,18,20,22,12,25,15];
-  const intReps  = [6,8,8,5,8,5,10,6];
+  const total    = p.programWeeks    || 8;
 
   const lib = {};
 
-  for (let w = 1; w <= 8; w++) {
-    const isDeload = w === 6;
-    const isTaper  = w === 8;
-    const isPeak   = w === 7;
-    const isFasted = w >= 4 && !beg && !isDeload && !isTaper;
-    const recov    = beg ? 3 : 2;      // recovery mins per 1-min interval
-    const reps     = intReps[w - 1];
+  for (let w = 1; w <= total; w++) {
+    const wt  = weekType(w, total);
+    const pos = (w - 1) / Math.max(total - 1, 1); // 0.0 → 1.0 through plan
+
+    const isDeload = wt === 'deload';
+    const isTaper  = wt === 'taper';
+    const isPeak   = wt === 'peak';
+    // Fasted sessions begin around halfway through the plan (not for beginners)
+    const isFasted = !beg && !isDeload && !isTaper && pos >= 0.45;
+
+    // Duration ranges, scaled by fitness level and plan position
+    const eMin = beg ? 20 : adv ? 40 : 30;
+    const eMax = beg ? 32 : adv ? 57 : 50;
+    const eDur = isDeload ? Math.round((eMin + (eMax - eMin) * Math.min(pos, 0.6)) * 0.75)
+               : isTaper  ? Math.round( eMin + (eMax - eMin) * 0.7)
+               : isPeak   ? eMax + 4
+               : Math.round( eMin + (eMax - eMin) * Math.min(pos / 0.85, 1) * 0.9);
+
+    const bMin = beg ? 25 : adv ? 45 : 35;
+    const bMax = beg ? 40 : adv ? 65 : 60;
+    const bDur = isDeload ? Math.round((bMin + (bMax - bMin) * Math.min(pos, 0.6)) * 0.75)
+               : isTaper  ? Math.round((bMin + (bMax - bMin) * 0.7) * 0.65)
+               : isPeak   ? bMax + 5
+               : Math.round( bMin + (bMax - bMin) * Math.min(pos / 0.85, 1) * 0.9);
+
+    const tMin = beg ? 10 : adv ? 18 : 15;
+    const tMax = beg ? 20 : adv ? 30 : 25;
+    const tDur = isDeload ? Math.round( tMin + (tMax - tMin) * 0.3)
+               : isTaper  ? Math.round( tMin + (tMax - tMin) * 0.65)
+               : isPeak   ? tMax
+               : Math.round( tMin + (tMax - tMin) * Math.min(pos / 0.85, 1) * 0.9);
+
+    const rMin = 6; const rMax = beg ? 8 : adv ? 12 : 10;
+    const reps = isDeload ? Math.max(3, Math.round(rMin * 0.65))
+               : isTaper  ? 6
+               : isPeak   ? rMax
+               : Math.round(rMin + (rMax - rMin) * Math.min(pos / 0.85, 1) * 0.85);
+
+    const recov = beg ? 3 : 2;
+
+    // Interval style progression
+    const iStyle = isDeload ? 'easy'
+                 : isTaper  ? 'short'
+                 : isPeak   ? 'hard'
+                 : pos >= 0.6 && adv ? 'tabata'
+                 : pos >= 0.45       ? 'pyramid'
+                                     : 'basic';
     const week     = [];
 
     // ── A: Primary easy cardio ────────────────────────────────
     if (hasRun) {
-      const dur = easyDur[w - 1] + (isPeak ? 4 : 0);
+      const dur = eDur;
       week.push({
-        title: beg && w <= 2  ? 'Easy walk-run'
+        title: beg && pos < 0.22 ? 'Easy walk-run'
              : isDeload       ? 'Easy run (deload)'
              : isTaper        ? 'Easy run (taper)'
              : isPeak         ? 'Long run'
@@ -1624,7 +1721,7 @@ function generateWorkoutLibrary(p) {
                               : 'Easy run',
         type: 'workout',
         meta: `${dur} min · ${isFasted ? 'before breakfast · ' : ''}zone 2`,
-        notes: beg && w <= 2
+        notes: beg && pos < 0.22
           ? `Run ${Math.round(dur * 0.6)} min / walk ${Math.round(dur * 0.4)} min. Flat route, conversational pace.`
           : isFasted
           ? `Water or black coffee only before. Zone 2 throughout. Eat within 30 min of finishing.`
@@ -1633,7 +1730,7 @@ function generateWorkoutLibrary(p) {
                      : `Continuous easy run. Zone 2 — conversational pace throughout.`,
       });
     } else if (hasBike) {
-      const dur = bikeDur[w - 1] + (isPeak ? 5 : 0);
+      const dur = bDur;
       week.push({
         title: isDeload ? 'Easy bike (deload)'
              : isTaper  ? 'Easy bike (taper)'
@@ -1646,37 +1743,36 @@ function generateWorkoutLibrary(p) {
                         : `Flat or gentle terrain. Zone 2. High cadence (80–90 rpm).`,
       });
     } else if (hasPool) {
-      const dur = easyDur[w - 1];
       week.push({
         title: isDeload ? 'Easy swim (deload)' : 'Easy swim',
         type: 'liss',
-        meta: `${dur} min · steady pace`,
+        meta: `${eDur} min · steady pace`,
         notes: `Easy laps, mix of strokes. Zone 2 breathing. ${isDeload ? 'Deload — take it easy.' : ''}`,
       });
     } else {
-      const dur = easyDur[w - 1] + 10;
       week.push({
         title: isDeload ? 'Brisk walk (deload)' : 'Brisk walk',
         type: 'workout',
-        meta: `${dur} min`,
+        meta: `${eDur + 10} min`,
         notes: isDeload ? `Gentle pace this week — recovery is the goal.`
                         : `Fast-paced walk, hills if available. Heart rate raised but sustainable.`,
       });
     }
 
     // ── B: Intervals ──────────────────────────────────────────
+    const intMins = Math.round(25 + pos * 10);
     if (hasRun) {
       week.push({
-        title: isDeload        ? 'Easy intervals (deload)'
-             : w === 4        ? 'Pyramid intervals'
-             : w === 5 && adv ? 'Tabata run'
-             : isPeak         ? 'Hard intervals'
-                              : 'Run intervals',
+        title: isDeload              ? 'Easy intervals (deload)'
+             : iStyle === 'pyramid' ? 'Pyramid intervals'
+             : iStyle === 'tabata'  ? 'Tabata run'
+             : isPeak               ? 'Hard intervals'
+                                    : 'Run intervals',
         type: 'interval',
-        meta: `~${25 + (w > 4 ? 5 : 0)} min`,
-        notes: w === 4
+        meta: `~${intMins} min`,
+        notes: iStyle === 'pyramid'
           ? `Warm-up 5 min. 1–2–3–2–1 min hard / equal rest. Cool-down 5 min.`
-          : w === 5 && adv
+          : iStyle === 'tabata'
           ? `10 min warm-up. 8×: 20 sec max / 10 sec rest. 10 min cool-down.`
           : isDeload
           ? `Warm-up 5 min. ${Math.round(reps * 0.6)}×1 min easy effort / ${recov} min walk. Cool-down 5 min.`
@@ -1684,12 +1780,12 @@ function generateWorkoutLibrary(p) {
       });
     } else if (hasBike) {
       week.push({
-        title: isDeload ? 'Easy bike intervals (deload)'
-             : w === 5  ? 'Tabata bike'
-                        : 'Bike intervals',
+        title: isDeload             ? 'Easy bike intervals (deload)'
+             : iStyle === 'tabata' ? 'Tabata bike'
+                                   : 'Bike intervals',
         type: 'interval',
-        meta: `~${25 + (w > 3 ? 5 : 0)} min`,
-        notes: w === 5
+        meta: `~${intMins} min`,
+        notes: iStyle === 'tabata'
           ? `10 min warm-up. 8×: 20 sec max / 10 sec rest. Seated throughout. 10 min cool-down.`
           : isDeload
           ? `Warm-up 5 min. ${Math.round(reps * 0.6)}×45 sec / 90 sec easy. Cool-down.`
@@ -1699,14 +1795,14 @@ function generateWorkoutLibrary(p) {
       week.push({
         title: 'Swim intervals',
         type: 'interval',
-        meta: `~${25 + (w > 3 ? 5 : 0)} min`,
+        meta: `~${intMins} min`,
         notes: `200m easy warm-up. ${reps}×50m hard / 30 sec rest. 100m cool-down.`,
       });
     } else {
       week.push({
         title: isDeload ? 'Light HIIT (deload)' : isPeak ? 'HIIT circuit (peak)' : 'HIIT circuit',
         type: 'interval',
-        meta: `~${20 + w * 2} min`,
+        meta: `~${intMins} min`,
         notes: isDeload
           ? `${Math.round(reps * 0.5)} rounds: 30 sec work / 30 sec rest. Squats, high knees, push-ups.`
           : `${reps} rounds: 40 sec work / 20 sec rest. Burpees, squat jumps, mountain climbers, high knees.`,
@@ -1715,19 +1811,19 @@ function generateWorkoutLibrary(p) {
 
     // ── C: Tempo / sustained effort (4–5 sessions only) ───────
     if (sessions >= 4) {
-      const tDur = tempoDur[w - 1];
       if (hasRun) {
+        const isHilly = pos >= 0.5 && pos < 0.72 && !isDeload && !isTaper && !isPeak;
         week.push({
           title: isDeload ? 'Short tempo (deload)'
                : isTaper  ? 'Moderate tempo (taper)'
                : isPeak   ? 'Race-pace tempo'
-               : w === 5  ? 'Hilly run / tempo'
+               : isHilly  ? 'Hilly run / tempo'
                           : 'Tempo run',
           type: 'tempo',
           meta: `~${tDur + 10} min total`,
           notes: isDeload
             ? `5 min easy, ${tDur} min at 6/10 (focus on form), 5 min easy.`
-            : w === 5
+            : isHilly
             ? `5 min easy, ${tDur} min over rolling hills or flat at 7/10, 5 min easy.`
             : `5 min easy, ${tDur} min at ${beg ? '6' : isPeak ? '8' : '7'}/10, 5 min easy.`,
         });
@@ -1772,57 +1868,56 @@ function generateWorkoutLibrary(p) {
         week.push({
           title: hasBike ? 'Easy bike + stretch' : hasPool ? 'Easy swim + stretch' : 'Active recovery + stretch',
           type: hasBike || hasPool ? 'liss' : 'rest',
-          meta: hasBike ? `${Math.round(bikeDur[w-1]*0.6)} min + 15 min stretch`
+          meta: hasBike ? `${Math.round(bDur * 0.6)} min + 15 min stretch`
                         : hasPool  ? '25 min + 15 min stretch' : '35 min',
           notes: `Easy effort only. Follow with a full-body stretch. You\'ve done the hard work.`,
         });
       } else if (hasBike && hasRun) {
         // Both run + bike: session D uses the bike for long rides
-        const dur = bikeDur[w - 1] + (isPeak ? 5 : 0);
+        const isCircuitWeek = wt === 'build' && pos > 0.25 && pos < 0.5;
         week.push({
-          title: isPeak ? 'Long bike + core'
-               : w >= 4 ? 'Long bike ride'
-               : w === 3 ? 'Park circuit'
-                         : 'Long easy ride',
-          type: w === 3 ? 'cross' : 'liss',
-          meta: w === 3  ? `~40 min`
-              : isPeak  ? `${dur} min + 10 min core`
-                        : `${dur} min · zone 2`,
-          notes: w === 3
+          title: isPeak        ? 'Long bike + core'
+               : pos >= 0.45  ? 'Long bike ride'
+               : isCircuitWeek ? 'Park circuit'
+                               : 'Long easy ride',
+          type: isCircuitWeek ? 'cross' : 'liss',
+          meta: isCircuitWeek ? `~40 min`
+              : isPeak        ? `${bDur} min + 10 min core`
+                              : `${bDur} min · zone 2`,
+          notes: isCircuitWeek
             ? `4 rounds: ${adv?'15':'12'} squats, ${adv?'12':'10'} push-ups, ${hasBar?'6 pull-ups':'20 mountain climbers'}, 10 min walk.`
             : isPeak
-            ? `${dur} min easy bike. Follow with: plank, dead bugs, glute bridges.`
+            ? `${bDur} min easy bike. Follow with: plank, dead bugs, glute bridges.`
             : `Long steady effort. Bring water. Zone 2 throughout.`,
         });
       } else if (hasGym) {
         week.push({
           title: isPeak ? 'Full gym circuit (peak)' : 'Gym circuit',
           type: 'cross',
-          meta: `~${35 + (w > 4 ? 5 : 0)} min`,
+          meta: `~${Math.round(35 + pos * 10)} min`,
           notes: `${adv?5:4} rounds: ${adv?'15':'12'} squats, ${adv?'12':'10'} push-ups, ${adv?'10':'6'} pull-ups / lat-pulldown, leg press, 30 sec plank. 90 sec rest between rounds.`,
         });
       } else if (hasBar) {
         week.push({
           title: isPeak ? 'Park circuit (peak)' : 'Bodyweight + bars circuit',
           type: 'cross',
-          meta: `~${35 + (w > 4 ? 5 : 0)} min`,
+          meta: `~${Math.round(35 + pos * 10)} min`,
           notes: `${adv?5:4} rounds: ${adv?'15':'12'} squats, ${adv?'12':'10'} push-ups, ${adv?'8':'5'} pull-up negatives, 20 mountain climbers. 10 min walk cool-down.`,
         });
       } else if (hasBike) {
-        const dur = bikeDur[w - 1] + (isPeak ? 5 : 0);
         week.push({
-          title: isPeak ? 'Long bike + core' : w >= 4 ? 'Long bike ride' : 'Long easy ride',
+          title: isPeak ? 'Long bike + core' : pos >= 0.45 ? 'Long bike ride' : 'Long easy ride',
           type: 'liss',
-          meta: isPeak ? `${dur} min + 10 min core` : `${dur} min · zone 2`,
+          meta: isPeak ? `${bDur} min + 10 min core` : `${bDur} min · zone 2`,
           notes: isPeak
-            ? `${dur} min easy ride. Follow with: plank, dead bugs, glute bridges.`
+            ? `${bDur} min easy ride. Follow with: plank, dead bugs, glute bridges.`
             : `Long steady ride. Bring water. Zone 2 throughout.`,
         });
       } else if (hasPool) {
         week.push({
           title: 'Long swim',
           type: 'liss',
-          meta: `~${easyDur[w-1]+10} min`,
+          meta: `~${eDur + 10} min`,
           notes: `Long easy swim. Mix strokes. Steady sustainable pace throughout.`,
         });
       } else {
@@ -1842,8 +1937,8 @@ function generateWorkoutLibrary(p) {
              : hasBike ? 'Easy spin'
                        : 'Active recovery walk',
         type: hasRun ? 'workout' : hasBike ? 'liss' : 'rest',
-        meta: hasRun  ? `${Math.round(easyDur[w-1]*0.65)} min · very easy`
-            : hasBike ? `${Math.round(bikeDur[w-1]*0.55)} min · very easy`
+        meta: hasRun  ? `${Math.round(eDur * 0.65)} min · very easy`
+            : hasBike ? `${Math.round(bDur * 0.55)} min · very easy`
                       : '30 min',
         notes: `Bonus session — very easy effort. If legs are heavy, skip it or just walk. Consistency over heroics.`,
       });
@@ -1882,7 +1977,8 @@ function generateInitEvents(p, fromWeek = 1) {
 
   function pick(arr, seed) { return arr[seed % arr.length]; }
 
-  for (let w = fromWeek; w <= 8; w++) {
+  const totalWeeks = p.programWeeks || 8;
+  for (let w = fromWeek; w <= totalWeeks; w++) {
     const weekLib = WORKOUT_LIBRARY[w] || [];
     let sIdx = 0; // session cursor
 
@@ -1949,9 +2045,11 @@ function renderStats() {
       } else { workouts++; }
     });
   }
-  const phase = currentWeek<=3?'Build':currentWeek<=6?'Develop':'Peak';
+  const total = userProfile?.programWeeks || 8;
+  const wt    = weekType(currentWeek, total);
+  const phase = wt.charAt(0).toUpperCase() + wt.slice(1);
   row.innerHTML = `
-    <div class="stat-chip"><span class="stat-chip-val">${currentWeek}</span><span class="stat-chip-label">of 8 weeks</span></div>
+    <div class="stat-chip"><span class="stat-chip-val">${currentWeek}</span><span class="stat-chip-label">of ${total} weeks</span></div>
     <div class="stat-chip"><span class="stat-chip-val">${phase}</span><span class="stat-chip-label">phase</span></div>
     <div class="stat-chip"><span class="stat-chip-val">${workouts}</span><span class="stat-chip-label">sessions this week</span></div>
     <div class="stat-chip"><span class="stat-chip-val">${meals}</span><span class="stat-chip-label">meals logged</span></div>
@@ -2029,7 +2127,8 @@ function renderMonthView() {
   const cv = document.getElementById('calendarView');
   let html = `<div class="month-view">`;
   DAYS.forEach(d => html += `<div class="month-header">${d}</div>`);
-  for(let w=1;w<=8;w++) {
+  const totalWeeks = userProfile?.programWeeks || 8;
+  for(let w = 1; w <= totalWeeks; w++) {
     for(let d=0;d<7;d++) {
       const date = getDate(w,d);
       const todayCls = isToday(date)?'today-num':'';
@@ -2060,8 +2159,11 @@ function getAllDayEvents(w,d) {
 }
 
 function renderSidebar() {
+  const total = userProfile?.programWeeks || 8;
   const pills = document.getElementById('weekPills');
-  pills.innerHTML = Array.from({length:8},(_,i)=>`<button class="wpill ${currentWeek===i+1?'active':''}" onclick="jumpWeek(${i+1},this)">W${i+1}</button>`).join('');
+  pills.innerHTML = Array.from({length: total}, (_, i) =>
+    `<button class="wpill ${currentWeek === i+1 ? 'active' : ''}" onclick="jumpWeek(${i+1},this)">W${i+1}</button>`
+  ).join('');
 }
 
 function renderSidebarContent(tab) {
@@ -2410,12 +2512,28 @@ function toggleDone(key, id, e) {
 
 // ── INFO PAGE PERSONALISATION ─────────────────────────────────────
 
+// Returns the nearest upcoming Monday from today (used as default start)
+function nextPlanMonday() {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  const dow = d.getDay(); // 0=Sun, 1=Mon …
+  const toMon = dow === 1 ? 0 : dow === 0 ? 1 : 8 - dow;
+  d.setDate(d.getDate() + toMon);
+  return d;
+}
+
 function planStartDate(p) {
-  // Use the createdAt timestamp, snapped forward to the next Monday
+  // Prefer the explicit startDate the user chose; fall back to next Monday from createdAt
+  if (p.startDate) {
+    const d = new Date(p.startDate);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
   const d = new Date(p.createdAt || Date.now());
   d.setHours(0, 0, 0, 0);
-  const dow = d.getDay(); // 0=Sun … 6=Sat
-  if (dow !== 1) d.setDate(d.getDate() + ((dow === 0 ? 1 : 8 - dow)));
+  const dow = d.getDay();
+  const toMon = dow === 1 ? 0 : dow === 0 ? 1 : 8 - dow;
+  d.setDate(d.getDate() + toMon);
   return d;
 }
 
@@ -2481,19 +2599,26 @@ function personalizeInfoPage(p) {
   ].join('');
 
   // ── PHASE DATES ───────────────────────────────────────────────────
-  const p1End = shiftDays(START_DATE, 20);
-  const p2Sta = shiftDays(START_DATE, 21);
-  const p2End = shiftDays(START_DATE, 41);
-  const p3Sta = shiftDays(START_DATE, 42);
-  const p3End = shiftDays(START_DATE, 55);
+  const pTotal = p.programWeeks || 8;
+  const pMap   = PHASE_MAPS[pTotal] || PHASE_MAPS[8];
+  // Find last week of each phase group
+  const buildEnd  = pMap.lastIndexOf('build');       // 0-indexed
+  const peakStart = pMap.indexOf('peak');            // 0-indexed
+  const p1End = shiftDays(START_DATE, buildEnd * 7 + 6);
+  const p2Sta = shiftDays(START_DATE, (buildEnd + 1) * 7);
+  const p2End = shiftDays(START_DATE, peakStart * 7 - 1);
+  const p3Sta = shiftDays(START_DATE, peakStart * 7);
+  const p3End = shiftDays(START_DATE, pTotal * 7 - 1);
   document.getElementById('phase1Dates').textContent = `${fmtDate(START_DATE)} – ${fmtDate(p1End)}`;
   document.getElementById('phase2Dates').textContent = `${fmtDate(p2Sta)} – ${fmtDate(p2End)}`;
   document.getElementById('phase3Dates').textContent = `${fmtDate(p3Sta)} – ${fmtDate(p3End)}`;
 
-  const eventStr = p.targetEvent ? `your ${p.targetEvent}` : 'your target';
+  const peakW   = peakStart + 1;  // 1-indexed
+  const taperW  = pMap.indexOf('taper') + 1;
+  const eventStr = p.targetEvent ? `your ${p.targetEvent}` : 'your goal';
   document.getElementById('phase3Desc').textContent =
-    `Peak effort in Week 7 — longest sessions, most intervals, longest tempo of the plan. `
-    + `Week 8 tapers back down so you arrive at ${eventStr} energised and at your best.`;
+    `Peak effort in Week ${peakW} — longest sessions, most intervals, longest tempo of the plan. `
+    + `Week ${taperW} tapers back so you arrive at ${eventStr} energised and at your best.`;
 
   // ── MACROS ────────────────────────────────────────────────────────
   const { wkd, rst, pro } = calcMacros(p);
@@ -2514,40 +2639,39 @@ function personalizeInfoPage(p) {
     banner.style.display = 'none';
   }
 
-  // ── WEEK BREAKDOWN TABLE ──────────────────────────────────────────
-  const phases  = ['Build','Build','Build','Develop','Develop','Develop','Peak','Taper'];
-  const pCls    = ['p1','p1','p1','p2','p2','p2','p3','p3'];
-  const themes  = [
-    'Get the engine running', 'Build on the base', 'Consolidate aerobic fitness',
-    'Raise the intensity',    'Hit your stride',   'Deload — recover to rebuild',
-    'Peak effort',            'Arrive fresh',
-  ];
-  const prog = [
-    'Establish rhythm — completing every session is the win',
-    '+5 min on cardio, first tempo block introduced',
-    'Intervals on primary cardio, ~10% more volume',
-    'Longer tempo, fasted cardio introduced (intermediate+)',
-    'Higher intensity variants — Tabata replaces pyramid',
-    'Volume drops ~20% — the deload is not optional',
-    'Longest sessions of the entire plan',
-    'Volume drops 25% — arrive at your target energised',
-  ];
-  document.getElementById('weekBreakdownBody').innerHTML = Array.from({ length: 8 }, (_, i) => {
-    const w   = i + 1;
-    const lib = WORKOUT_LIBRARY[w] || [];
-    const sessions = lib.map(s => s.title).join(', ');
+  // ── WEEK BREAKDOWN TABLE (dynamic length) ─────────────────────────
+  const phaseLabel = { build:'Build', develop:'Develop', deload:'Deload', peak:'Peak', taper:'Taper' };
+  const phaseCls   = { build:'p1', develop:'p2', deload:'p2', peak:'p3', taper:'p3' };
+  const themeByType = {
+    build:   ['Get the engine running','Build on the base','Consolidate aerobic fitness','Building volume'],
+    develop: ['Raise the intensity','Hit your stride','Keep pushing','Build intensity'],
+    deload:  ['Deload — recover to rebuild'],
+    peak:    ['Peak effort','Maximum intensity'],
+    taper:   ['Arrive fresh'],
+  };
+  document.getElementById('weekBreakdownBody').innerHTML = Array.from({ length: pTotal }, (_, i) => {
+    const w    = i + 1;
+    const wtyp = weekType(w, pTotal);
+    const lib  = WORKOUT_LIBRARY[w] || [];
+    const sess = lib.map(s => s.title).join(', ');
+    const themes = themeByType[wtyp] || [''];
+    const theme  = themes[Math.min(i, themes.length - 1)];
     return `<tr>
-      <td>W${w} <span class="wk-badge wk-${pCls[i]}">${phases[i]}</span></td>
-      <td>${themes[i]}</td>
-      <td style="max-width:220px;font-size:11px">${sessions}</td>
-      <td>${prog[i]}</td>
+      <td>W${w} <span class="wk-badge wk-${phaseCls[wtyp]}">${phaseLabel[wtyp]}</span></td>
+      <td>${theme}</td>
+      <td style="max-width:220px;font-size:11px">${sess}</td>
+      <td>${wtyp === 'deload' ? 'Volume drops ~20% — recovery is mandatory'
+         : wtyp === 'taper'  ? 'Volume drops 25% — arrive energised'
+         : wtyp === 'peak'   ? 'Longest sessions of the entire plan'
+         : `Week ${w} progression`}</td>
     </tr>`;
   }).join('');
 }
 
 // ── CONTROLS ──────────────────────────────────────────────────────
 function changeWeek(dir) {
-  currentWeek = Math.max(1, Math.min(8, currentWeek+dir));
+  const total = userProfile?.programWeeks || 8;
+  currentWeek = Math.max(1, Math.min(total, currentWeek + dir));
   renderAll();
 }
 
@@ -2595,11 +2719,12 @@ function showOnboarding(editMode = false) {
     ? 'Adjust any details below. Your saved plan stays untouched — only the info page and sidebar will update immediately.'
     : 'A few quick questions and we\'ll create a personalised 8-week fitness programme just for you.';
 
-  // Suggest target date as today + 56 days (only for new users)
+  // Default start date to next Monday (only for new users)
   if (!editMode) {
-    const suggested = new Date();
-    suggested.setDate(suggested.getDate() + 56);
-    document.getElementById('obTargetDate').value = suggested.toISOString().split('T')[0];
+    document.getElementById('obStartDate').value = nextPlanMonday().toISOString().split('T')[0];
+    // Default 8 weeks selected
+    document.querySelectorAll('.ob-duration').forEach(el =>
+      el.classList.toggle('selected', el.dataset.value === '8'));
   }
 
   document.getElementById('onboardingOverlay').classList.add('open');
@@ -2664,6 +2789,10 @@ function obValidate() {
   if (obStep === 4) {
     if (!document.querySelector('.ob-sessions.selected')) return obErr('Please choose how many sessions per week.');
   }
+  if (obStep === 5) {
+    if (!document.getElementById('obStartDate').value) return obErr('Please choose a start date.');
+    if (!document.querySelector('.ob-duration.selected')) return obErr('Please choose a programme length.');
+  }
   return true;
 }
 
@@ -2708,7 +2837,8 @@ function obFinish() {
   const equipment    = [...document.querySelectorAll('.ob-equip.checked')].map(e => e.dataset.value);
   const sessionsPerWeek = parseInt(document.querySelector('.ob-sessions.selected')?.dataset.value || '4');
   const targetEvent  = document.getElementById('obTargetEvent').value.trim();
-  const targetDate   = document.getElementById('obTargetDate').value;
+  const startDate    = document.getElementById('obStartDate').value;
+  const programWeeks = parseInt(document.querySelector('.ob-duration.selected')?.dataset.value || '8');
   const injuries     = document.getElementById('obInjuries').value.trim();
 
   const isEdit = obEditMode;
@@ -2716,8 +2846,7 @@ function obFinish() {
   userProfile = {
     name, age, weightRaw, weightUnit: obUnit, weightKg, weightSt,
     goal, fitnessLevel, equipment, sessionsPerWeek,
-    targetEvent, targetDate, injuries,
-    // Preserve original createdAt so START_DATE doesn't drift on profile edits
+    targetEvent, startDate, programWeeks, injuries,
     createdAt: isEdit && userProfile?.createdAt ? userProfile.createdAt : new Date().toISOString(),
   };
 
@@ -2754,6 +2883,8 @@ function openTuneModal() {
     el.classList.toggle('selected', el.dataset.value === userProfile.fitnessLevel));
   document.querySelectorAll('.tune-sessions').forEach(el =>
     el.classList.toggle('selected', el.dataset.value === String(userProfile.sessionsPerWeek)));
+  document.querySelectorAll('.tune-length').forEach(el =>
+    el.classList.toggle('selected', el.dataset.value === String(userProfile.programWeeks || 8)));
   // Default "from current week", first option selected
   document.querySelectorAll('.tune-from').forEach((el, i) => el.classList.toggle('selected', i === 0));
   updateTuneWarning();
@@ -2786,15 +2917,18 @@ document.addEventListener('click', e => {
 });
 
 function applyTune() {
-  const level    = document.querySelector('.tune-level.selected')?.dataset.value;
-  const sessions = parseInt(document.querySelector('.tune-sessions.selected')?.dataset.value);
+  const level        = document.querySelector('.tune-level.selected')?.dataset.value;
+  const sessions     = parseInt(document.querySelector('.tune-sessions.selected')?.dataset.value);
+  const programWeeks = parseInt(document.querySelector('.tune-length.selected')?.dataset.value || userProfile?.programWeeks || 8);
   if (!level || !sessions) return;
 
   const fromAll  = document.querySelector('.tune-from.selected')?.dataset.value === 'all';
   const fromWeek = fromAll ? 1 : currentWeek;
 
   // Update profile with new settings
-  userProfile = { ...userProfile, fitnessLevel: level, sessionsPerWeek: sessions };
+  userProfile = { ...userProfile, fitnessLevel: level, sessionsPerWeek: sessions, programWeeks };
+  // Clamp current week to new length
+  if (currentWeek > programWeeks) currentWeek = programWeeks;
   if (currentUser) {
     db.collection('plans').doc(currentUser.uid).set({
       profile: userProfile,
@@ -2846,7 +2980,9 @@ function prefillOnboarding(p) {
 
   // Final step
   document.getElementById('obTargetEvent').value = p.targetEvent || '';
-  document.getElementById('obTargetDate').value  = p.targetDate  || '';
+  document.getElementById('obStartDate').value   = p.startDate   || nextPlanMonday().toISOString().split('T')[0];
+  document.querySelectorAll('.ob-duration').forEach(el =>
+    el.classList.toggle('selected', el.dataset.value === String(p.programWeeks || 8)));
   document.getElementById('obInjuries').value    = p.injuries    || '';
 }
 
