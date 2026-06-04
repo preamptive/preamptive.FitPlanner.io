@@ -916,7 +916,10 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 <div class="ob-overlay" id="onboardingOverlay">
   <div class="ob-card">
 
-    <div class="ob-logo">FitPlanner <span class="ob-logo-sub">· personalised setup</span></div>
+    <div class="ob-logo" style="position:relative">
+      FitPlanner <span class="ob-logo-sub">· personalised setup</span>
+      <button class="modal-close" onclick="obClose()" title="Close" style="position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:22px">&#215;</button>
+    </div>
 
     <!-- Progress dots -->
     <div class="ob-progress">
@@ -2605,6 +2608,15 @@ function showOnboarding(editMode = false) {
 
 function hideOnboarding() {
   document.getElementById('onboardingOverlay').classList.remove('open');
+}
+
+function obClose() {
+  hideOnboarding();
+  // First-time users who close before finishing still need a usable calendar
+  if (!obEditMode && Object.keys(events).length === 0) {
+    initEvents();
+    renderAll();
+  }
 }
 
 function goToObStep(n) {
