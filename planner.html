@@ -1654,11 +1654,12 @@ function initEvents() {
 // Called once on first login (after onboarding) and again on each
 // return login so the sidebar reflects the user's setup.
 function generateWorkoutLibrary(p) {
-  const hasRun  = p.equipment.includes('outdoor');
-  const hasBike = p.equipment.includes('bike');
-  const hasGym  = p.equipment.includes('gym');
-  const hasBar  = p.equipment.includes('pullup') || hasGym;
-  const hasPool = p.equipment.includes('pool');
+  const equip   = p.equipment || ['outdoor'];   // defensive fallback
+  const hasRun  = equip.includes('outdoor');
+  const hasBike = equip.includes('bike');
+  const hasGym  = equip.includes('gym');
+  const hasBar  = equip.includes('pullup') || hasGym;
+  const hasPool = equip.includes('pool');
   const beg = p.fitnessLevel === 'beginner';
   const adv = p.fitnessLevel === 'advanced';
   const sessions = p.sessionsPerWeek || 4;
@@ -2906,19 +2907,17 @@ function obFinish() {
 
 // ── TUNE PLAN ─────────────────────────────────────────────────────
 function openTuneModal() {
-  if (!userProfile) {
-    // No profile yet — guide them to set one up first
-    alert('Set up your profile first using the ✎ Profile button — then Adjust plan will be available.');
-    return;
-  }
-  // Pre-select current settings
+  // Use profile values where available, fall back to sensible defaults
+  const level    = userProfile?.fitnessLevel    || 'intermediate';
+  const sessions = userProfile?.sessionsPerWeek || 4;
+  const weeks    = userProfile?.programWeeks    || 8;
+
   document.querySelectorAll('.tune-level').forEach(el =>
-    el.classList.toggle('selected', el.dataset.value === userProfile.fitnessLevel));
+    el.classList.toggle('selected', el.dataset.value === level));
   document.querySelectorAll('.tune-sessions').forEach(el =>
-    el.classList.toggle('selected', el.dataset.value === String(userProfile.sessionsPerWeek)));
+    el.classList.toggle('selected', el.dataset.value === String(sessions)));
   document.querySelectorAll('.tune-length').forEach(el =>
-    el.classList.toggle('selected', el.dataset.value === String(userProfile.programWeeks || 8)));
-  // Default "from current week", first option selected
+    el.classList.toggle('selected', el.dataset.value === String(weeks)));
   document.querySelectorAll('.tune-from').forEach((el, i) => el.classList.toggle('selected', i === 0));
   updateTuneWarning();
   document.getElementById('tuneModalOverlay').classList.add('open');
@@ -2929,15 +2928,16 @@ function closeTuneModal() {
 }
 
 function updateTuneWarning() {
-  const fromAll = document.querySelector('.tune-from.selected')?.dataset.value === 'all';
+  const fromAll  = document.querySelector('.tune-from.selected')?.dataset.value === 'all';
+  const total    = parseInt(document.querySelector('.tune-length.selected')?.dataset.value || userProfile?.programWeeks || 8);
   const fromDesc = document.getElementById('tuneFromDesc');
   const warn     = document.getElementById('tuneWarning');
   if (fromAll) {
-    fromDesc.textContent = 'Regenerate all 8 weeks';
+    fromDesc.textContent = `Regenerate all ${total} weeks`;
     warn.textContent = '⚠ All existing sessions will be replaced.';
   } else {
     const kept = currentWeek > 1 ? `Keeps weeks 1–${currentWeek - 1}` : 'Starting from week 1';
-    fromDesc.textContent = `Week ${currentWeek} → 8. ${kept}.`;
+    fromDesc.textContent = `Week ${currentWeek} → ${total}. ${kept}.`;
     warn.textContent = currentWeek > 1
       ? `⚠ Sessions for weeks ${currentWeek}–8 will be replaced. Weeks 1–${currentWeek - 1} stay as-is.`
       : '⚠ All sessions will be replaced.';
@@ -2958,8 +2958,14 @@ function applyTune() {
   const fromAll  = document.querySelector('.tune-from.selected')?.dataset.value === 'all';
   const fromWeek = fromAll ? 1 : currentWeek;
 
-  // Update profile with new settings
-  userProfile = { ...userProfile, fitnessLevel: level, sessionsPerWeek: sessions, programWeeks };
+  // Merge selections into existing profile, or create a minimal one if none exists
+  const base = userProfile || {
+    name: '', age: 0, weightRaw: 13, weightUnit: 'stone', weightKg: 82.6, weightSt: 13,
+    goal: 'fitness', equipment: ['outdoor'],
+    targetEvent: '', startDate: new Date().toISOString().split('T')[0],
+    injuries: '', createdAt: new Date().toISOString()
+  };
+  userProfile = { ...base, fitnessLevel: level, sessionsPerWeek: sessions, programWeeks };
   // Clamp current week to new length
   if (currentWeek > programWeeks) currentWeek = programWeeks;
   if (currentUser) {
