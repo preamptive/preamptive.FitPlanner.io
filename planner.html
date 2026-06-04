@@ -668,6 +668,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
     <button class="btn btn-secondary" style="margin-left:6px;padding:6px 14px;font-size:12px;display:flex;align-items:center;gap:5px" onclick="openShareModal()">&#8679; Share</button>
     <span id="userEmail" style="font-size:11px;color:var(--text3);margin-left:12px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
     <button class="btn btn-secondary" id="editProfileBtn" style="margin-left:6px;padding:6px 14px;font-size:12px;display:none" onclick="editProfile()">✎ Profile</button>
+    <button class="btn btn-secondary" id="tuneBtn" style="margin-left:6px;padding:6px 14px;font-size:12px;display:none" onclick="openTuneModal()">⚡ Adjust plan</button>
     <button class="btn btn-secondary" style="margin-left:6px;padding:6px 14px;font-size:12px" onclick="doSignOut()">Sign out</button>
   </div>
 </div>
@@ -1152,6 +1153,70 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
       <button class="btn btn-primary" id="obNextBtn" onclick="obNext()">Next →</button>
     </div>
 
+  </div>
+</div>
+
+<!-- ══ ADJUST PLAN MODAL ══════════════════════════════════════════ -->
+<div class="modal-overlay" id="tuneModalOverlay">
+  <div class="modal" style="width:500px;max-height:90vh;overflow-y:auto">
+    <div class="modal-header">
+      <span class="modal-title">Adjust your plan</span>
+      <button class="modal-close" onclick="closeTuneModal()">&#215;</button>
+    </div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:1.25rem;line-height:1.5">Change the difficulty or schedule. Weeks you choose to regenerate will get fresh sessions — anything before that stays untouched.</p>
+
+    <div class="field" style="margin-bottom:0.5rem"><label>Difficulty</label></div>
+    <div class="ob-options cols-3" style="margin-bottom:1.25rem">
+      <div class="ob-option tune-level" data-value="beginner" onclick="selectOb(this,'tune-level')">
+        <div class="ob-option-icon">🌱</div>
+        <div class="ob-option-title">Easier</div>
+        <div class="ob-option-desc">Shorter sessions, more recovery</div>
+      </div>
+      <div class="ob-option tune-level" data-value="intermediate" onclick="selectOb(this,'tune-level')">
+        <div class="ob-option-icon">🏃</div>
+        <div class="ob-option-title">Moderate</div>
+        <div class="ob-option-desc">Balanced intensity and duration</div>
+      </div>
+      <div class="ob-option tune-level" data-value="advanced" onclick="selectOb(this,'tune-level')">
+        <div class="ob-option-icon">⚡</div>
+        <div class="ob-option-title">Harder</div>
+        <div class="ob-option-desc">Longer sessions, higher intensity</div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom:0.5rem"><label>Sessions per week</label></div>
+    <div class="ob-options cols-3" style="margin-bottom:1.25rem">
+      <div class="ob-option tune-sessions" data-value="3" onclick="selectOb(this,'tune-sessions')">
+        <div class="ob-option-title">3 sessions</div>
+        <div class="ob-option-desc">~3–4 hrs / week</div>
+      </div>
+      <div class="ob-option tune-sessions" data-value="4" onclick="selectOb(this,'tune-sessions')">
+        <div class="ob-option-title">4 sessions</div>
+        <div class="ob-option-desc">~4–5 hrs / week</div>
+      </div>
+      <div class="ob-option tune-sessions" data-value="5" onclick="selectOb(this,'tune-sessions')">
+        <div class="ob-option-title">5 sessions</div>
+        <div class="ob-option-desc">~5–7 hrs / week</div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-bottom:0.5rem"><label>Apply to</label></div>
+    <div class="ob-options cols-2" style="margin-bottom:0.5rem">
+      <div class="ob-option tune-from selected" data-value="current" onclick="selectOb(this,'tune-from')">
+        <div class="ob-option-title">This week onwards</div>
+        <div class="ob-option-desc" id="tuneFromDesc">Keeps your completed weeks</div>
+      </div>
+      <div class="ob-option tune-from" data-value="all" onclick="selectOb(this,'tune-from')">
+        <div class="ob-option-title">Entire plan</div>
+        <div class="ob-option-desc">Regenerate all 8 weeks</div>
+      </div>
+    </div>
+    <p id="tuneWarning" style="font-size:11px;color:var(--text3);margin-bottom:1rem;padding:0 2px"></p>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeTuneModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="applyTune()">✓ Regenerate plan</button>
+    </div>
   </div>
 </div>
 
@@ -1828,10 +1893,14 @@ function generateWorkoutLibrary(p) {
 
 // Populates events from a generated workout library.
 // Called instead of initEvents() for users who went through onboarding.
-function generateInitEvents(p) {
-  // Update the global library so the sidebar also shows personalised workouts
+// fromWeek lets partial regeneration keep completed weeks intact.
+// Pass fromWeek=1 (default) for a full fresh plan.
+function generateInitEvents(p, fromWeek = 1) {
+  // Rebuild the global library
   WORKOUT_LIBRARY = generateWorkoutLibrary(p);
-  events = {};
+
+  // Full reset only when regenerating from week 1
+  if (fromWeek === 1) events = {};
 
   // Workout day patterns (0=Mon … 6=Sun)
   const dayPatterns = {
@@ -1850,7 +1919,7 @@ function generateInitEvents(p) {
 
   function pick(arr, seed) { return arr[seed % arr.length]; }
 
-  for (let w = 1; w <= 8; w++) {
+  for (let w = fromWeek; w <= 8; w++) {
     const weekLib = WORKOUT_LIBRARY[w] || [];
     let sIdx = 0; // session cursor
 
@@ -2412,9 +2481,11 @@ function equipLabel(eq) {
 function personalizeInfoPage(p) {
   if (!p) return;
 
-  // Show the Edit Profile button now that we have a profile
-  const epBtn = document.getElementById('editProfileBtn');
-  if (epBtn) epBtn.style.display = '';
+  // Show profile-dependent header buttons
+  const epBtn   = document.getElementById('editProfileBtn');
+  const tuneBtn = document.getElementById('tuneBtn');
+  if (epBtn)   epBtn.style.display   = '';
+  if (tuneBtn) tuneBtn.style.display = '';
 
   // ── START DATE ────────────────────────────────────────────────────
   START_DATE = planStartDate(p);
@@ -2699,6 +2770,80 @@ function obFinish() {
   }
 }
 
+// ── TUNE PLAN ─────────────────────────────────────────────────────
+function openTuneModal() {
+  if (!userProfile) {
+    // No profile yet — guide them to set one up first
+    alert('Set up your profile first using the ✎ Profile button — then Adjust plan will be available.');
+    return;
+  }
+  // Pre-select current settings
+  document.querySelectorAll('.tune-level').forEach(el =>
+    el.classList.toggle('selected', el.dataset.value === userProfile.fitnessLevel));
+  document.querySelectorAll('.tune-sessions').forEach(el =>
+    el.classList.toggle('selected', el.dataset.value === String(userProfile.sessionsPerWeek)));
+  // Default "from current week", first option selected
+  document.querySelectorAll('.tune-from').forEach((el, i) => el.classList.toggle('selected', i === 0));
+  updateTuneWarning();
+  document.getElementById('tuneModalOverlay').classList.add('open');
+}
+
+function closeTuneModal() {
+  document.getElementById('tuneModalOverlay').classList.remove('open');
+}
+
+function updateTuneWarning() {
+  const fromAll = document.querySelector('.tune-from.selected')?.dataset.value === 'all';
+  const fromDesc = document.getElementById('tuneFromDesc');
+  const warn     = document.getElementById('tuneWarning');
+  if (fromAll) {
+    fromDesc.textContent = 'Regenerate all 8 weeks';
+    warn.textContent = '⚠ All existing sessions will be replaced.';
+  } else {
+    const kept = currentWeek > 1 ? `Keeps weeks 1–${currentWeek - 1}` : 'Starting from week 1';
+    fromDesc.textContent = `Week ${currentWeek} → 8. ${kept}.`;
+    warn.textContent = currentWeek > 1
+      ? `⚠ Sessions for weeks ${currentWeek}–8 will be replaced. Weeks 1–${currentWeek - 1} stay as-is.`
+      : '⚠ All sessions will be replaced.';
+  }
+}
+
+// Attach live warning update when "apply to" option changes
+document.addEventListener('click', e => {
+  if (e.target.closest('.tune-from')) updateTuneWarning();
+});
+
+function applyTune() {
+  const level    = document.querySelector('.tune-level.selected')?.dataset.value;
+  const sessions = parseInt(document.querySelector('.tune-sessions.selected')?.dataset.value);
+  if (!level || !sessions) return;
+
+  const fromAll  = document.querySelector('.tune-from.selected')?.dataset.value === 'all';
+  const fromWeek = fromAll ? 1 : currentWeek;
+
+  // Update profile with new settings
+  userProfile = { ...userProfile, fitnessLevel: level, sessionsPerWeek: sessions };
+  if (currentUser) {
+    db.collection('plans').doc(currentUser.uid).set({
+      profile: userProfile,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  }
+
+  // Wipe events for the weeks we're regenerating (keep earlier weeks)
+  Object.keys(events).forEach(k => {
+    const m = k.match(/^w(\d+)/);
+    if (m && parseInt(m[1]) >= fromWeek) delete events[k];
+  });
+
+  // Regenerate from fromWeek onwards
+  generateInitEvents(userProfile, fromWeek);
+
+  closeTuneModal();
+  renderAll();
+}
+
+// ── EDIT PROFILE (onboarding re-entry) ───────────────────────────
 // Pre-fills every onboarding field with current profile data
 function prefillOnboarding(p) {
   if (!p) return;
@@ -2785,6 +2930,10 @@ document.getElementById('modalOverlay').addEventListener('click', function(e){
 
 document.getElementById('shareModalOverlay').addEventListener('click', function(e){
   if(e.target===this) closeShareModal();
+});
+
+document.getElementById('tuneModalOverlay').addEventListener('click', function(e){
+  if(e.target===this) closeTuneModal();
 });
 
 // ── SHARE ─────────────────────────────────────────────────────────
