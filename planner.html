@@ -135,6 +135,8 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 .time-label { height: 80px; display: flex; align-items: flex-start; justify-content: center; padding-top: 8px; font-size: 10px; color: var(--text3); border-right: 1px solid var(--border); }
 .day-col { background: var(--surface); border-right: 1px solid var(--border); }
 .day-col:last-child { border-right: none; }
+.cal-header.today-col { background: #EAF5EF; }
+.day-col.today-col { background: #F3FAF6; }
 .day-slot {
   height: 80px;
   border-bottom: 1px solid var(--border);
@@ -1940,8 +1942,9 @@ function renderWeekView() {
   html += `<div class="cal-header" style="background:var(--surface2)"></div>`;
   DAYS.forEach((d,i) => {
     const date = getDate(currentWeek, i);
-    const todayCls = isToday(date)?'today':'';
-    html += `<div class="cal-header"><div class="day-header">
+    const todayCls = isToday(date) ? 'today' : '';
+    const todayCol = isToday(date) ? ' today-col' : '';
+    html += `<div class="cal-header${todayCol}"><div class="day-header">
       <div class="day-name">${d}</div>
       <div class="day-num ${todayCls}">${date.getDate()}</div>
     </div></div>`;
@@ -1951,9 +1954,9 @@ function renderWeekView() {
     html += `<div class="time-col"><div class="time-label">${slot}</div></div>`;
     for(let d=0;d<7;d++) {
       const key = `w${currentWeek}d${d}s${si}`;
-      const baseKey = `w${currentWeek}d${d}`;
       const slotEvs = (events[key]||[]);
-      html += `<div class="day-col"><div class="day-slot" 
+      const todayCol = isToday(getDate(currentWeek, d)) ? ' today-col' : '';
+      html += `<div class="day-col${todayCol}"><div class="day-slot" 
         data-key="${key}"
         ondragover="allowDrop(event)"
         ondrop="dropEvent(event,'${key}')"
