@@ -346,15 +346,6 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 .check-icon.yes { color: var(--green); }
 .check-icon.no { color: var(--coral); }
 
-/* SHARE MODAL */
-.share-url-row { display: flex; gap: 8px; margin-top: 0.5rem; }
-.share-url-input { flex: 1; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 12px; font-family: 'DM Sans', sans-serif; color: var(--text2); background: var(--surface2); outline: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.copy-success { display: none; font-size: 12px; color: var(--green); align-items: center; gap: 5px; margin-top: 6px; }
-.copy-success.show { display: flex; }
-.share-note { font-size: 12px; color: var(--text3); line-height: 1.5; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--border); }
-.share-steps { margin-top: 0.5rem; }
-.share-step { display: flex; gap: 8px; font-size: 12px; color: var(--text2); margin-bottom: 5px; align-items: flex-start; }
-.step-num { width: 18px; height: 18px; border-radius: 50%; background: var(--green-light); color: var(--green); font-size: 10px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
 
 /* ══ RESPONSIVE ═══════════════════════════════════════════════════════ */
 
@@ -665,7 +656,6 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
       <button class="view-btn" onclick="setView('month',this)">Month</button>
     </div>
     <button class="btn btn-primary" style="margin-left:8px;padding:6px 14px;font-size:12px" id="addBtn" onclick="openAddModal()">+ Add</button>
-    <button class="btn btn-secondary" style="margin-left:6px;padding:6px 14px;font-size:12px;display:flex;align-items:center;gap:5px" onclick="openShareModal()">&#8679; Share</button>
     <span id="userEmail" style="font-size:11px;color:var(--text3);margin-left:12px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
     <button class="btn btn-secondary" id="editProfileBtn" style="margin-left:6px;padding:6px 14px;font-size:12px;display:none" onclick="editProfile()">✎ Profile</button>
     <button class="btn btn-secondary" id="tuneBtn" style="margin-left:6px;padding:6px 14px;font-size:12px;display:none" onclick="openTuneModal()">⚡ Adjust plan</button>
@@ -921,36 +911,6 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
   </div>
 </div>
 
-<!-- SHARE MODAL -->
-<div class="modal-overlay" id="shareModalOverlay">
-  <div class="modal" style="width:480px">
-    <div class="modal-header">
-      <span class="modal-title">Share your plan</span>
-      <button class="modal-close" onclick="closeShareModal()">&#215;</button>
-    </div>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:1rem;line-height:1.5">Your full plan — all 8 weeks of workouts and meals — is encoded into the link below. Anyone with it can view and interact with your calendar.</p>
-    <label style="font-size:12px;font-weight:500;color:var(--text2)">Shareable link</label>
-    <div class="share-url-row">
-      <input class="share-url-input" id="shareUrlInput" readonly>
-      <button class="btn btn-primary" onclick="copyShareUrl()" id="copyBtn" style="padding:6px 14px;font-size:12px;white-space:nowrap">Copy link</button>
-    </div>
-    <div class="copy-success" id="copySuccess">&#10003; Copied to clipboard</div>
-    <div id="urlLenNote" style="font-size:11px;color:var(--text3);margin-top:4px"></div>
-    <div class="share-note">
-      <strong style="font-size:12px;color:var(--text2)">How to share</strong>
-      <div class="share-steps">
-        <div class="share-step"><span class="step-num">1</span>Copy the link above</div>
-        <div class="share-step"><span class="step-num">2</span>Send it via WhatsApp, email, or any messaging app</div>
-        <div class="share-step"><span class="step-num">3</span>The recipient opens it in any browser — no app or account needed</div>
-        <div class="share-step"><span class="step-num">4</span>They see your exact plan and can move things around on their own copy</div>
-      </div>
-      <p style="margin-top:0.75rem;font-size:11px;color:var(--text3)">The link contains your full plan data. If you edit the plan after sharing, generate a new link — changes aren't synced automatically.</p>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="closeShareModal()">Close</button>
-    </div>
-  </div>
-</div>
 
 <!-- ══ ONBOARDING OVERLAY ══════════════════════════════════════════ -->
 <div class="ob-overlay" id="onboardingOverlay">
@@ -2897,10 +2857,7 @@ auth.onAuthStateChanged(user => {
     if (el) el.style.display = '';
   });
 
-  // URL-shared plan takes priority — skip onboarding
-  if (loadFromUrl()) { renderAll(); return; }
-
-  db.collection('plans').doc(user.uid).get().then(doc => {
+db.collection('plans').doc(user.uid).get().then(doc => {
     if (!doc.exists) {
       // Brand new user — run onboarding
       showOnboarding();
@@ -2933,174 +2890,11 @@ document.getElementById('modalOverlay').addEventListener('click', function(e){
   if(e.target===this) closeModal();
 });
 
-document.getElementById('shareModalOverlay').addEventListener('click', function(e){
-  if(e.target===this) closeShareModal();
-});
 
 document.getElementById('tuneModalOverlay').addEventListener('click', function(e){
   if(e.target===this) closeTuneModal();
 });
 
-// ── SHARE ─────────────────────────────────────────────────────────
-
-// Type map: full type string → single char, and back
-const TYPE_ENC = {workout:'w',interval:'i',tempo:'t',liss:'l',rest:'r',cross:'c',meal:'m',snack:'s'};
-const TYPE_DEC = Object.fromEntries(Object.entries(TYPE_ENC).map(([k,v])=>[v,k]));
-
-function encodeEvents() {
-  // Build a compact array: only non-empty slots, each as [key, [[type, title, meta, notes], ...]]
-  const out = {};
-  for(const [k, arr] of Object.entries(events)) {
-    if(!arr || !arr.length) continue;
-    out[k] = arr.map(e => [
-      TYPE_ENC[e.type] || 'w',
-      (e.title || '').slice(0, 60),
-      (e.meta  || '').slice(0, 50),
-      (e.notes || '').slice(0, 120)
-    ]);
-  }
-  return out;
-}
-
-function decodeEvents(obj) {
-  const result = {};
-  for(const [k, arr] of Object.entries(obj)) {
-    result[k] = arr.map(e => ({
-      id:    uid(),
-      type:  TYPE_DEC[e[0]] || 'workout',
-      title: e[1] || '',
-      meta:  e[2] || '',
-      notes: e[3] || ''
-    }));
-  }
-  return result;
-}
-
-// Simple LZ-inspired string compressor using repeated substring dictionary
-function lzCompress(str) {
-  const dict = {};
-  let result = '';
-  let i = 0;
-  let dictSize = 256;
-  for(let c = 0; c < 256; c++) dict[String.fromCharCode(c)] = c;
-  let w = str[0];
-  for(i = 1; i < str.length; i++) {
-    const c = str[i];
-    if(dict[w + c] !== undefined) {
-      w = w + c;
-    } else {
-      result += String.fromCharCode(dict[w]);
-      dict[w + c] = dictSize++;
-      w = c;
-    }
-  }
-  result += String.fromCharCode(dict[w]);
-  return result;
-}
-
-function lzDecompress(str) {
-  const dict = {};
-  let dictSize = 256;
-  for(let c = 0; c < 256; c++) dict[c] = String.fromCharCode(c);
-  let result = '';
-  let w = str[0];
-  result += w;
-  for(let i = 1; i < str.length; i++) {
-    const k = str.charCodeAt(i);
-    let entry;
-    if(dict[k] !== undefined) entry = dict[k];
-    else if(k === dictSize) entry = w + w[0];
-    else throw new Error('Bad compressed data');
-    result += entry;
-    dict[dictSize++] = w + entry[0];
-    w = entry;
-  }
-  return result;
-}
-
-function packPlan() {
-  try {
-    const minimal = encodeEvents();
-    const json = JSON.stringify(minimal);
-    // Compress then base64url-encode (URL-safe, no padding)
-    const compressed = lzCompress(json);
-    // Convert to UTF-16 code units safely via escape
-    const b64 = btoa(unescape(encodeURIComponent(compressed)));
-    // Make URL-safe
-    return b64.replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-  } catch(e) {
-    // Fallback: just base64 the JSON directly
-    return btoa(unescape(encodeURIComponent(JSON.stringify(encodeEvents())))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-  }
-}
-
-function unpackPlan(s) {
-  // Restore base64 padding
-  const b64 = s.replace(/-/g,'+').replace(/_/g,'/');
-  const padded = b64 + '==='.slice((b64.length + 3) % 4);
-  try {
-    const decompressed = lzDecompress(decodeURIComponent(escape(atob(padded))));
-    return decodeEvents(JSON.parse(decompressed));
-  } catch(e) {
-    // Fallback: try plain base64 JSON
-    try {
-      return decodeEvents(JSON.parse(decodeURIComponent(escape(atob(padded)))));
-    } catch(e2) { return null; }
-  }
-}
-
-function openShareModal() {
-  const packed = packPlan();
-  const base = window.location.href.split('#')[0];
-  const url = base + '#p=' + packed;
-  document.getElementById('shareUrlInput').value = url;
-  // Show character count
-  const lenEl = document.getElementById('urlLenNote');
-  if(lenEl) lenEl.textContent = url.length + ' characters';
-  document.getElementById('copySuccess').classList.remove('show');
-  document.getElementById('shareModalOverlay').classList.add('open');
-}
-
-function closeShareModal() {
-  document.getElementById('shareModalOverlay').classList.remove('open');
-}
-
-function copyShareUrl() {
-  const input = document.getElementById('shareUrlInput');
-  const val = input.value;
-  navigator.clipboard.writeText(val).then(() => {
-    showCopied();
-  }).catch(() => {
-    input.select();
-    document.execCommand('copy');
-    showCopied();
-  });
-}
-
-function showCopied() {
-  document.getElementById('copySuccess').classList.add('show');
-  const btn = document.getElementById('copyBtn');
-  btn.textContent = 'Copied!';
-  setTimeout(() => { btn.textContent = 'Copy link'; }, 2500);
-}
-
-function loadFromUrl() {
-  const hash = window.location.hash;
-  // New compact format
-  if(hash.startsWith('#p=')) {
-    const result = unpackPlan(hash.slice(3));
-    if(result) { Object.assign(events, result); return true; }
-  }
-  // Legacy format fallback
-  if(hash.startsWith('#plan=')) {
-    try {
-      const data = JSON.parse(decodeURIComponent(atob(hash.slice(6))));
-      Object.assign(events, data);
-      return true;
-    } catch(e) {}
-  }
-  return false;
-}
 
 </script>
 </body>
