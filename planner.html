@@ -680,9 +680,9 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 <div class="info-page" id="infoPage">
 
   <div class="info-hero">
-    <div class="info-hero-title">Your 8-week weight loss plan</div>
-    <div class="info-hero-sub">Designed for an intermediate runner at 13.5 stone, targeting ~1 stone of fat loss before your end-of-July trip. Four sessions per week, 30–60 minutes each, built around your existing 2–3 runs per week.</div>
-    <div class="info-chips">
+    <div class="info-hero-title" id="infoHeroTitle">Your 8-week weight loss plan</div>
+    <div class="info-hero-sub" id="infoHeroSub">Designed for an intermediate runner at 13.5 stone, targeting ~1 stone of fat loss before your end-of-July trip. Four sessions per week, 30–60 minutes each, built around your existing 2–3 runs per week.</div>
+    <div class="info-chips" id="infoChips">
       <span class="info-chip"><span class="info-chip-dot" style="background:var(--green-mid)"></span>46 years old</span>
       <span class="info-chip"><span class="info-chip-dot" style="background:var(--green-mid)"></span>13.5 stone starting weight</span>
       <span class="info-chip"><span class="info-chip-dot" style="background:var(--blue)"></span>Intermediate fitness</span>
@@ -699,20 +699,20 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
       <div class="phase-block p1">
         <div class="phase-block-label">Phase 1 — Build</div>
         <div class="phase-block-title">Weeks 1–3</div>
-        <div class="phase-block-weeks">3 June – 21 June</div>
+        <div class="phase-block-weeks" id="phase1Dates">3 June – 21 June</div>
         <div class="phase-block-desc">Establish aerobic base. Shorter sessions, manageable intensity. The goal is consistency — all four sessions completed each week is the win.</div>
       </div>
       <div class="phase-block p2">
         <div class="phase-block-label">Phase 2 — Develop</div>
         <div class="phase-block-title">Weeks 4–6</div>
-        <div class="phase-block-weeks">22 June – 12 July</div>
+        <div class="phase-block-weeks" id="phase2Dates">22 June – 12 July</div>
         <div class="phase-block-desc">Ramp up calorie burn. Longer sessions, higher intensity intervals, fasted cardio introduced. Week 6 is a deliberate deload to let the body adapt.</div>
       </div>
       <div class="phase-block p3">
         <div class="phase-block-label">Phase 3 — Peak &amp; taper</div>
         <div class="phase-block-title">Weeks 7–8</div>
-        <div class="phase-block-weeks">13 July – 26 July</div>
-        <div class="phase-block-desc">Peak effort in Week 7 — longest run, most intervals, longest tempo. Week 8 tapers back down so you arrive at your trip energised and looking your best.</div>
+        <div class="phase-block-weeks" id="phase3Dates">13 July – 26 July</div>
+        <div class="phase-block-desc" id="phase3Desc">Peak effort in Week 7 — longest run, most intervals, longest tempo. Week 8 tapers back down so you arrive at your trip energised and looking your best.</div>
       </div>
     </div>
 
@@ -720,26 +720,26 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
       <table class="week-breakdown">
         <thead><tr><th>Week</th><th>Theme</th><th>Key sessions</th><th>Progression</th></tr></thead>
-        <tbody>
-          <tr><td>W1 <span class="wk-badge wk-p1">Build</span></td><td>Get the engine running</td><td>Easy run, bike LISS, intro intervals, active recovery</td><td>Establish rhythm — finishing all 4 is the goal</td></tr>
-          <tr><td>W2 <span class="wk-badge wk-p1">Build</span></td><td>Add a little more</td><td>Steady run, bike intervals, tempo run, long easy ride</td><td>+5 min on run, first tempo block (15 min)</td></tr>
-          <tr><td>W3 <span class="wk-badge wk-p1">Build</span></td><td>Consolidate base</td><td>40 min run, run intervals, bike tempo, park circuit</td><td>Intervals move to running, ~10% more volume</td></tr>
+        <tbody id="weekBreakdownBody">
+          <tr><td>W1 <span class="wk-badge wk-p1">Build</span></td><td>Get the engine running</td><td>Easy run, bike LISS, intro intervals, active recovery</td><td>Establish rhythm — finishing all sessions is the goal</td></tr>
+          <tr><td>W2 <span class="wk-badge wk-p1">Build</span></td><td>Add a little more</td><td>Steady run, bike intervals, tempo run, long easy ride</td><td>+5 min on cardio, first tempo block</td></tr>
+          <tr><td>W3 <span class="wk-badge wk-p1">Build</span></td><td>Consolidate base</td><td>40 min run, run intervals, bike tempo, park circuit</td><td>Intervals move to main cardio, ~10% more volume</td></tr>
           <tr><td>W4 <span class="wk-badge wk-p2">Develop</span></td><td>Up the calorie burn</td><td>Fasted run, pyramid intervals, 20 min tempo, 60 min ride</td><td>Fasted cardio introduced, tempo hits 20 min</td></tr>
-          <tr><td>W5 <span class="wk-badge wk-p2">Develop</span></td><td>Hit your stride</td><td>Run + strides, Tabata bike, hilly run, cross-train circuit</td><td>Strides added, Tabata replaces pyramid</td></tr>
+          <tr><td>W5 <span class="wk-badge wk-p2">Develop</span></td><td>Hit your stride</td><td>Run + strides, Tabata bike, hilly run, cross-train circuit</td><td>Tabata replaces pyramid, higher intensity</td></tr>
           <tr><td>W6 <span class="wk-badge wk-p2">Develop</span></td><td>Deload — recover to rebuild</td><td>Easy run, easy bike, short tempo, mobility circuit</td><td>Volume down ~20% — critical recovery week</td></tr>
-          <tr><td>W7 <span class="wk-badge wk-p3">Peak</span></td><td>Peak effort</td><td>45–50 min run, 10×1 min intervals, 25 min tempo, long ride</td><td>Longest run, most intervals, longest tempo of plan</td></tr>
-          <tr><td>W8 <span class="wk-badge wk-p3">Taper</span></td><td>Arrive fresh</td><td>35 min easy run, 6×1 min intervals, 15 min tempo, easy ride</td><td>Volume drops 25% — arrive energised for the trip</td></tr>
+          <tr><td>W7 <span class="wk-badge wk-p3">Peak</span></td><td>Peak effort</td><td>Longest sessions of plan across all types</td><td>Longest run, most intervals, longest tempo</td></tr>
+          <tr><td>W8 <span class="wk-badge wk-p3">Taper</span></td><td>Arrive fresh</td><td>Shorter versions of each session type</td><td>Volume drops 25% — arrive at your target energised</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
   <!-- INJURY NOTE -->
-  <div class="injury-banner">
+  <div class="injury-banner" id="injuryBanner">
     <div class="injury-icon">&#9888;</div>
     <div>
-      <div class="injury-title">Knee &amp; lower back guidance</div>
-      <div class="injury-text">
+      <div class="injury-title" id="injuryTitle">Knee &amp; lower back guidance</div>
+      <div class="injury-text" id="injuryText">
         <strong>Weak right knee:</strong> Avoid deep lunges and steep downhill running. Keep cycling cadence high (80–90 rpm) — this reduces knee load. On bad knee days, swap any run for an equivalent bike session at the same intensity structure. Stop if the knee swells.<br><br>
         <strong>Occasional lower back pain:</strong> The core work in active recovery sessions (dead bugs, glute bridges, planks) is therapeutic, not filler — prioritise it. On flare-up days, skip sit-up style movements entirely. Avoid locked-knee cycling. Never rush a warm-up.
       </div>
@@ -780,10 +780,10 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
     <div class="info-section-title">Diet pairing — making the deficit work</div>
 
     <div class="diet-macro-row">
-      <div class="diet-mac"><div class="diet-mac-val">2,050</div><div class="diet-mac-label">kcal — workout days</div></div>
-      <div class="diet-mac"><div class="diet-mac-val">1,750</div><div class="diet-mac-label">kcal — rest days</div></div>
-      <div class="diet-mac"><div class="diet-mac-val">145g</div><div class="diet-mac-label">protein daily target</div><div class="diet-mac-sub">~1.7g per kg bodyweight</div></div>
-      <div class="diet-mac"><div class="diet-mac-val">400–500</div><div class="diet-mac-label">kcal daily deficit</div><div class="diet-mac-sub">from diet + exercise combined</div></div>
+      <div class="diet-mac"><div class="diet-mac-val" id="macroWorkout">2,050</div><div class="diet-mac-label">kcal — workout days</div></div>
+      <div class="diet-mac"><div class="diet-mac-val" id="macroRest">1,750</div><div class="diet-mac-label">kcal — rest days</div></div>
+      <div class="diet-mac"><div class="diet-mac-val" id="macroProtein">145g</div><div class="diet-mac-label">protein daily target</div><div class="diet-mac-sub" id="macroProteinSub">~1.7g per kg bodyweight</div></div>
+      <div class="diet-mac"><div class="diet-mac-val" id="macroDeficit">400–500</div><div class="diet-mac-label">kcal daily deficit</div><div class="diet-mac-sub">from diet + exercise combined</div></div>
     </div>
 
     <div class="info-grid" style="margin-bottom:1.25rem">
@@ -1183,7 +1183,7 @@ function toggleSidebar() {
 }
 
 // ── DATA ─────────────────────────────────────────────────────────
-const START_DATE = new Date(2026, 5, 3); // 3 June 2026
+let START_DATE = new Date(2026, 5, 3); // 3 June 2026 — overridden per-user by personalizeInfoPage
 
 let WORKOUT_LIBRARY = {
   1: [
@@ -2051,9 +2051,11 @@ function showSideTab(tab, el) {
 }
 
 function renderAll() {
+  // Apply profile personalisation (updates START_DATE + info page content)
+  if (userProfile) personalizeInfoPage(userProfile);
   document.getElementById('weekLabel').textContent = `Week ${currentWeek}`;
   renderStats();
-  if(currentView==='week') renderWeekView(); else renderMonthView();
+  if (currentView === 'week') renderWeekView(); else renderMonthView();
   renderSidebar();
   renderSidebarContent(activeSideTab);
   scheduleSave();
@@ -2333,6 +2335,137 @@ function removeEvent(key, id, e) {
   const idx = evs.findIndex(ev=>ev.id===id);
   if(idx>-1) evs.splice(idx,1);
   renderAll();
+}
+
+// ── INFO PAGE PERSONALISATION ─────────────────────────────────────
+
+function planStartDate(p) {
+  // Use the createdAt timestamp, snapped forward to the next Monday
+  const d = new Date(p.createdAt || Date.now());
+  d.setHours(0, 0, 0, 0);
+  const dow = d.getDay(); // 0=Sun … 6=Sat
+  if (dow !== 1) d.setDate(d.getDate() + ((dow === 0 ? 1 : 8 - dow)));
+  return d;
+}
+
+function shiftDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
+
+function fmtDate(d) {
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+}
+
+function calcMacros(p) {
+  const kg = p.weightKg || 80;
+  const mul = p.fitnessLevel === 'beginner' ? 27 : p.fitnessLevel === 'advanced' ? 31 : 29;
+  const tdee = kg * mul;
+  const deficit = p.goal === 'lose' ? 500 : p.goal === 'tone' ? 250 : 0;
+  const wkd = Math.round((tdee - deficit + 100) / 50) * 50;
+  const rst = Math.round((tdee - deficit - 250) / 50) * 50;
+  const pro = Math.round(kg * 1.7);
+  return { wkd, rst, pro, deficit };
+}
+
+function equipLabel(eq) {
+  const m = { outdoor: 'outdoors', bike: 'cycling', gym: 'gym', pullup: 'bars', pool: 'pool', home: 'home' };
+  return (eq || []).map(e => m[e] || e).join(' + ') || 'bodyweight';
+}
+
+function personalizeInfoPage(p) {
+  if (!p) return;
+
+  // ── START DATE ────────────────────────────────────────────────────
+  START_DATE = planStartDate(p);
+
+  // ── HERO ──────────────────────────────────────────────────────────
+  const goalMap = { lose: 'weight loss', tone: 'body composition', fitness: 'fitness', event: 'performance' };
+  const title = `${p.name ? p.name + '’s' : 'Your'} 8-week ${goalMap[p.goal] || 'fitness'} plan`;
+  document.getElementById('infoHeroTitle').textContent = title;
+
+  const wStr = p.weightUnit === 'stone' ? `${p.weightRaw} stone` : `${Math.round(p.weightRaw)} kg`;
+  const goalDesc = p.goal === 'lose'    ? 'targeting fat loss'
+                 : p.goal === 'tone'    ? 'focusing on body composition'
+                 : p.goal === 'event'   ? (p.targetEvent ? `training for ${p.targetEvent}` : 'training for your event')
+                                        : 'building fitness and endurance';
+  const durStr = p.fitnessLevel === 'beginner' ? '20–40 min' : p.fitnessLevel === 'advanced' ? '40–65 min' : '30–55 min';
+  document.getElementById('infoHeroSub').textContent =
+    `Designed for a${p.fitnessLevel === 'intermediate' ? 'n' : ''} ${p.fitnessLevel} at ${wStr}, ${goalDesc}. `
+    + `${p.sessionsPerWeek} sessions per week, ${durStr} each, built around your ${equipLabel(p.equipment)}.`;
+
+  // ── CHIPS ─────────────────────────────────────────────────────────
+  const chip = (dot, label) =>
+    `<span class="info-chip"><span class="info-chip-dot" style="background:${dot}"></span>${label}</span>`;
+  document.getElementById('infoChips').innerHTML = [
+    chip('var(--green-mid)', `${p.age} years old`),
+    chip('var(--green-mid)', `${wStr} starting weight`),
+    chip('var(--blue)',      `${p.fitnessLevel[0].toUpperCase() + p.fitnessLevel.slice(1)} fitness`),
+    chip('var(--amber)',     `${p.sessionsPerWeek} sessions / week`),
+    p.goal === 'lose' ? chip('var(--coral)', 'Goal: lose fat') : chip('var(--coral)', `Goal: ${goalMap[p.goal]||p.goal}`),
+    chip('var(--purple)',    equipLabel(p.equipment)),
+  ].join('');
+
+  // ── PHASE DATES ───────────────────────────────────────────────────
+  const p1End = shiftDays(START_DATE, 20);
+  const p2Sta = shiftDays(START_DATE, 21);
+  const p2End = shiftDays(START_DATE, 41);
+  const p3Sta = shiftDays(START_DATE, 42);
+  const p3End = shiftDays(START_DATE, 55);
+  document.getElementById('phase1Dates').textContent = `${fmtDate(START_DATE)} – ${fmtDate(p1End)}`;
+  document.getElementById('phase2Dates').textContent = `${fmtDate(p2Sta)} – ${fmtDate(p2End)}`;
+  document.getElementById('phase3Dates').textContent = `${fmtDate(p3Sta)} – ${fmtDate(p3End)}`;
+
+  const eventStr = p.targetEvent ? `your ${p.targetEvent}` : 'your target';
+  document.getElementById('phase3Desc').textContent =
+    `Peak effort in Week 7 — longest sessions, most intervals, longest tempo of the plan. `
+    + `Week 8 tapers back down so you arrive at ${eventStr} energised and at your best.`;
+
+  // ── MACROS ────────────────────────────────────────────────────────
+  const { wkd, rst, pro } = calcMacros(p);
+  const def = p.goal === 'lose' ? '400–600' : p.goal === 'tone' ? '200–300' : '0–200';
+  document.getElementById('macroWorkout').textContent     = wkd.toLocaleString();
+  document.getElementById('macroRest').textContent        = rst.toLocaleString();
+  document.getElementById('macroProtein').textContent     = `${pro}g`;
+  document.getElementById('macroProteinSub').textContent  = `~${(pro / p.weightKg).toFixed(1)}g per kg bodyweight`;
+  document.getElementById('macroDeficit').textContent     = def;
+
+  // ── INJURY BANNER ─────────────────────────────────────────────────
+  const banner = document.getElementById('injuryBanner');
+  if (p.injuries && p.injuries.trim()) {
+    banner.style.display = '';
+    document.getElementById('injuryTitle').textContent = 'Your injury & limitation notes';
+    document.getElementById('injuryText').textContent  = p.injuries.trim();
+  } else {
+    banner.style.display = 'none';
+  }
+
+  // ── WEEK BREAKDOWN TABLE ──────────────────────────────────────────
+  const phases  = ['Build','Build','Build','Develop','Develop','Develop','Peak','Taper'];
+  const pCls    = ['p1','p1','p1','p2','p2','p2','p3','p3'];
+  const themes  = [
+    'Get the engine running', 'Build on the base', 'Consolidate aerobic fitness',
+    'Raise the intensity',    'Hit your stride',   'Deload — recover to rebuild',
+    'Peak effort',            'Arrive fresh',
+  ];
+  const prog = [
+    'Establish rhythm — completing every session is the win',
+    '+5 min on cardio, first tempo block introduced',
+    'Intervals on primary cardio, ~10% more volume',
+    'Longer tempo, fasted cardio introduced (intermediate+)',
+    'Higher intensity variants — Tabata replaces pyramid',
+    'Volume drops ~20% — the deload is not optional',
+    'Longest sessions of the entire plan',
+    'Volume drops 25% — arrive at your target energised',
+  ];
+  document.getElementById('weekBreakdownBody').innerHTML = Array.from({ length: 8 }, (_, i) => {
+    const w   = i + 1;
+    const lib = WORKOUT_LIBRARY[w] || [];
+    const sessions = lib.map(s => s.title).join(', ');
+    return `<tr>
+      <td>W${w} <span class="wk-badge wk-${pCls[i]}">${phases[i]}</span></td>
+      <td>${themes[i]}</td>
+      <td style="max-width:220px;font-size:11px">${sessions}</td>
+      <td>${prog[i]}</td>
+    </tr>`;
+  }).join('');
 }
 
 // ── CONTROLS ──────────────────────────────────────────────────────
