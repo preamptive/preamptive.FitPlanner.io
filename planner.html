@@ -1714,24 +1714,46 @@ function generateWorkoutLibrary(p) {
                  : pos >= 0.6 && adv ? 'tabata'
                  : pos >= 0.45       ? 'pyramid'
                                      : 'basic';
-    const week     = [];
+
+    // Effort/recovery prescription — this is what really separates the levels
+    // Beginner:     30 sec on / 90 sec walk  (achievable, no gasping)
+    // Intermediate: 60 sec on / 2 min easy   (standard)
+    // Advanced:     90 sec on / 60 sec jog   (longer effort, shorter rest)
+    const effortStr = beg ? '30 sec' : adv ? '90 sec' : '1 min';
+    const recovStr  = beg ? '90 sec walk' : adv ? '60 sec jog' : `${recov} min easy`;
+
+    const week = [];
 
     // ── A: Primary easy cardio ────────────────────────────────
     if (hasRun) {
-      const dur = eDur;
+      const dur         = eDur;
+      const withStrides = adv && pos >= 0.5 && !isDeload && !isTaper && !isPeak;
+      const walkRun     = beg && pos < 0.22;
       week.push({
-        title: beg && pos < 0.22 ? 'Easy walk-run'
-             : isDeload       ? 'Easy run (deload)'
-             : isTaper        ? 'Easy run (taper)'
-             : isPeak         ? 'Long run'
-             : isFasted       ? 'Fasted easy run'
-                              : 'Easy run',
+        title: walkRun   ? 'Walk-run'
+             : isDeload  ? (beg ? 'Easy jog (deload)'   : 'Easy run (deload)')
+             : isTaper   ? (beg ? 'Easy jog (taper)'    : 'Easy run (taper)')
+             : isPeak    ? (beg ? 'Longer jog'          : 'Long run')
+             : isFasted  ? 'Fasted run'
+             : beg       ? 'Easy jog'
+             : withStrides ? 'Easy run + strides'
+                           : 'Easy run',
         type: 'workout',
-        meta: `${dur} min · ${isFasted ? 'before breakfast · ' : ''}zone 2`,
-        notes: beg && pos < 0.22
-          ? `Run ${Math.round(dur * 0.6)} min / walk ${Math.round(dur * 0.4)} min. Flat route, conversational pace.`
+        meta: walkRun
+          ? `${dur} min · run ${Math.round(dur*0.6)} / walk ${Math.round(dur*0.4)}`
+          : beg
+          ? `${dur} min · very easy jog`
+          : withStrides
+          ? `${dur} min · zone 2 + 4×20 sec strides`
+          : `${dur} min · ${isFasted ? 'fasted · ' : ''}zone 2`,
+        notes: walkRun
+          ? `Run ${Math.round(dur*0.6)} min, walk ${Math.round(dur*0.4)} min — repeat as needed. Flat route. You shouldn't feel breathless.`
+          : beg
+          ? `Very slow, easy jog — slow enough to hold a conversation easily. Walk whenever needed, no guilt.`
           : isFasted
           ? `Water or black coffee only before. Zone 2 throughout. Eat within 30 min of finishing.`
+          : withStrides
+          ? `Easy run at zone 2. Finish with 4×20 sec strides (near-sprint acceleration) / 40 sec walk. Strides build leg speed without adding fatigue.`
           : isDeload ? `Deload week — drop effort 20%. Completing it is the win.`
           : isTaper  ? `Very easy pace. Arrive at your target feeling fresh.`
                      : `Continuous easy run. Zone 2 — conversational pace throughout.`,
@@ -1767,72 +1789,109 @@ function generateWorkoutLibrary(p) {
     }
 
     // ── B: Intervals ──────────────────────────────────────────
-    const intMins = Math.round(25 + pos * 10);
+    const intMins  = Math.round(25 + pos * 10);
+    const intCount = isDeload || isTaper ? Math.max(3, Math.round(reps * 0.6)) : reps;
     if (hasRun) {
       week.push({
         title: isDeload              ? 'Easy intervals (deload)'
              : iStyle === 'pyramid' ? 'Pyramid intervals'
              : iStyle === 'tabata'  ? 'Tabata run'
+             : isPeak && adv        ? 'VO₂max intervals'
              : isPeak               ? 'Hard intervals'
+             : beg                  ? 'Beginner intervals'
                                     : 'Run intervals',
         type: 'interval',
-        meta: `~${intMins} min`,
+        meta: iStyle === 'pyramid' ? `~${intMins} min · 1-2-3-2-1 min`
+            : iStyle === 'tabata'  ? `~${intMins} min · 8×20 sec max`
+            : `~${intMins} min · ${intCount}×${effortStr}`,
         notes: iStyle === 'pyramid'
-          ? `Warm-up 5 min. 1–2–3–2–1 min hard / equal rest. Cool-down 5 min.`
+          ? `Warm-up 5 min. ${adv ? '1–2–3–2–1 min' : '1–2–3–2–1 min'} hard / equal rest. Cool-down 5 min.`
           : iStyle === 'tabata'
-          ? `10 min warm-up. 8×: 20 sec max / 10 sec rest. 10 min cool-down.`
+          ? `10 min warm-up. 8×: 20 sec absolute max effort / 10 sec rest. 10 min cool-down.`
+          : beg
+          ? `5 min walk warm-up. ${intCount}×30 sec at 6–7/10 (slightly breathless but talking possible) / 90 sec easy walk. Never gasping. 5 min walk cool-down.`
+          : adv && isPeak
+          ? `5 min easy. ${intCount}×90 sec at 9/10 (should feel very hard) / 60 sec easy jog. No stopping between reps. 5 min easy.`
+          : adv
+          ? `5 min easy. ${intCount}×90 sec at 8/10 / 60 sec easy jog. Shorter rest means more aerobic benefit. 5 min easy.`
           : isDeload
-          ? `Warm-up 5 min. ${Math.round(reps * 0.6)}×1 min easy effort / ${recov} min walk. Cool-down 5 min.`
-          : `Warm-up 5 min. ${reps}×1 min at 8–9/10 / ${recov} min easy. Cool-down 5 min.`,
+          ? `5 min easy. ${intCount}×1 min at easy 6/10 / ${recov} min walk. Half effort this week — it's meant to feel manageable.`
+          : `5 min easy. ${intCount}×1 min at 8/10 / ${recov} min easy. 5 min easy.`,
       });
     } else if (hasBike) {
       week.push({
         title: isDeload             ? 'Easy bike intervals (deload)'
              : iStyle === 'tabata' ? 'Tabata bike'
+             : beg                 ? 'Beginner bike intervals'
                                    : 'Bike intervals',
         type: 'interval',
-        meta: `~${intMins} min`,
+        meta: iStyle === 'tabata' ? `~${intMins} min · 8×20 sec`
+            : `~${intMins} min · ${intCount}×${beg ? '30 sec' : '45 sec'}`,
         notes: iStyle === 'tabata'
-          ? `10 min warm-up. 8×: 20 sec max / 10 sec rest. Seated throughout. 10 min cool-down.`
+          ? `10 min warm-up. 8×: 20 sec max effort seated / 10 sec rest. 10 min cool-down.`
+          : beg
+          ? `5 min easy spin. ${intCount}×30 sec slightly faster / 90 sec easy. Seated throughout. 5 min cool-down.`
           : isDeload
-          ? `Warm-up 5 min. ${Math.round(reps * 0.6)}×45 sec / 90 sec easy. Cool-down.`
-          : `Warm-up 5 min. ${reps}×45 sec sprint / 90 sec easy. Seated only. Cool-down.`,
+          ? `5 min warm-up. ${intCount}×45 sec / 90 sec easy. Easy effort this week. Cool-down.`
+          : `5 min warm-up. ${intCount}×45 sec sprint / 90 sec easy. Seated only — no standing sprints. Cool-down.`,
       });
     } else if (hasPool) {
       week.push({
-        title: 'Swim intervals',
+        title: beg ? 'Beginner swim intervals' : 'Swim intervals',
         type: 'interval',
-        meta: `~${intMins} min`,
-        notes: `200m easy warm-up. ${reps}×50m hard / 30 sec rest. 100m cool-down.`,
+        meta: `~${intMins} min · ${intCount}×${beg ? '25m' : '50m'}`,
+        notes: beg
+          ? `200m easy warm-up. ${intCount}×25m at 6–7/10 / 30 sec rest. 100m cool-down.`
+          : `200m easy warm-up. ${intCount}×50m hard / 30 sec rest. 100m cool-down.`,
       });
     } else {
       week.push({
-        title: isDeload ? 'Light HIIT (deload)' : isPeak ? 'HIIT circuit (peak)' : 'HIIT circuit',
+        title: beg     ? (isDeload ? 'Light bodyweight cardio' : 'Beginner HIIT')
+             : isDeload ? 'Light HIIT (deload)'
+             : isPeak   ? 'HIIT circuit (peak)'
+                        : 'HIIT circuit',
         type: 'interval',
-        meta: `~${intMins} min`,
-        notes: isDeload
+        meta: beg ? `~${intMins} min · ${intCount}×30 sec`
+                  : `~${intMins} min · ${intCount} rounds`,
+        notes: beg
+          ? `5 min walk. ${intCount}×30 sec marching on spot / step-touches / seated squats at 6/10 / 60 sec rest. Never gasping.`
+          : isDeload
           ? `${Math.round(reps * 0.5)} rounds: 30 sec work / 30 sec rest. Squats, high knees, push-ups.`
-          : `${reps} rounds: 40 sec work / 20 sec rest. Burpees, squat jumps, mountain climbers, high knees.`,
+          : `${intCount} rounds: 40 sec work / 20 sec rest. Burpees, squat jumps, mountain climbers, high knees.`,
       });
     }
 
     // ── C: Tempo / sustained effort (4–5 sessions only) ───────
     if (sessions >= 4) {
       if (hasRun) {
-        const isHilly = pos >= 0.5 && pos < 0.72 && !isDeload && !isTaper && !isPeak;
+        const isHilly       = pos >= 0.5 && pos < 0.72 && !isDeload && !isTaper && !isPeak;
+        const earlyBeginner = beg && pos < 0.35;
         week.push({
-          title: isDeload ? 'Short tempo (deload)'
-               : isTaper  ? 'Moderate tempo (taper)'
-               : isPeak   ? 'Race-pace tempo'
-               : isHilly  ? 'Hilly run / tempo'
-                          : 'Tempo run',
+          title: isDeload      ? (beg ? 'Easy jog (deload)'  : 'Short tempo (deload)')
+               : isTaper       ? (beg ? 'Easy jog (taper)'   : 'Moderate tempo (taper)')
+               : earlyBeginner ? 'Continuous jog'
+               : isPeak && adv ? 'Threshold run'
+               : isPeak        ? 'Race-pace tempo'
+               : beg           ? 'Easy tempo jog'
+               : isHilly       ? 'Hilly run / tempo'
+                               : 'Tempo run',
           type: 'tempo',
-          meta: `~${tDur + 10} min total`,
-          notes: isDeload
-            ? `5 min easy, ${tDur} min at 6/10 (focus on form), 5 min easy.`
+          meta: earlyBeginner
+            ? `${tDur + 10} min · continuous easy jog`
+            : adv && isPeak
+            ? `~${tDur + 10} min · threshold effort`
+            : `~${tDur + 10} min total`,
+          notes: earlyBeginner
+            ? `Jog continuously for ${tDur + 10} min — no walk breaks. Slightly faster than your easy jog but still very comfortable. This builds aerobic endurance.`
+            : beg
+            ? `5 min easy, then ${tDur} min at 6/10 — comfortably uncomfortable, harder than your jog but you can still speak short sentences. 5 min easy.`
+            : adv && isPeak
+            ? `5 min easy. ${tDur} min at threshold — 8/10 effort, like a 10K race. You can say single words, not sentences. 5 min easy.`
+            : isDeload
+            ? `5 min easy, ${tDur} min at 6/10 (focus on form, not speed), 5 min easy.`
             : isHilly
-            ? `5 min easy, ${tDur} min over rolling hills or flat at 7/10, 5 min easy.`
-            : `5 min easy, ${tDur} min at ${beg ? '6' : isPeak ? '8' : '7'}/10, 5 min easy.`,
+            ? `5 min easy. ${tDur} min over rolling hills — push the uphills, control the downhills. 5 min easy.`
+            : `5 min easy. ${tDur} min at ${isPeak ? '8' : '7'}/10 — comfortably hard. 5 min easy.`,
         });
       } else if (hasBike) {
         week.push({
@@ -1864,7 +1923,15 @@ function generateWorkoutLibrary(p) {
 
     // ── D: Cross-train / long / recovery ─────────────────────
     {
-      if (isDeload) {
+      // Beginners get active recovery in early weeks rather than full circuits
+      if (beg && pos < 0.4 && !isDeload && !isTaper && !(hasBike && hasRun)) {
+        week.push({
+          title: 'Active recovery + stretch',
+          type: 'rest',
+          meta: '~35 min',
+          notes: `20 min easy walk. Then 2 gentle rounds: 8 squats, 8 push-ups (knees OK), 8 glute bridges, dead bugs, cat-cows. Finish with a 5 min full-body stretch. Recovery is training.`,
+        });
+      } else if (isDeload) {
         week.push({
           title: 'Mobility + light circuit',
           type: 'rest',
