@@ -172,6 +172,26 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 .event-del { position: absolute; top: 3px; right: 4px; background: none; border: none; cursor: pointer; color: var(--text3); font-size: 12px; opacity: 0; transition: opacity 0.1s; line-height: 1; padding: 0; }
 .event-card:hover .event-del { opacity: 1; }
 
+/* Completion tick */
+.event-check {
+  position: absolute;
+  bottom: 3px; right: 4px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0,0,0,0.15);
+  background: rgba(255,255,255,0.5);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; color: transparent;
+  transition: all 0.15s;
+  padding: 0; line-height: 1; z-index: 1;
+}
+.event-check:hover { border-color: var(--green); color: var(--green); background: var(--green-light); }
+.event-card.done .event-check { background: var(--green); border-color: var(--green); color: #fff; }
+.event-card.done { opacity: 0.45; }
+.event-card.done .event-card-title { text-decoration: line-through; }
+.month-event.done { opacity: 0.45; text-decoration: line-through; }
+
 /* MODAL */
 .modal-overlay {
   display: none;
@@ -1921,10 +1941,11 @@ function typeDot(type) {
   return `<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${colors[type]||'#52B788'};margin-right:4px;vertical-align:middle"></span>`;
 }
 
-function renderEventCard(ev, key, inline=true) {
-  return `<div class="event-card ${typeClass(ev.type)}" 
-    draggable="true" 
-    data-id="${ev.id}" 
+function renderEventCard(ev, key) {
+  const doneCls = ev.done ? ' done' : '';
+  return `<div class="event-card ${typeClass(ev.type)}${doneCls}"
+    draggable="true"
+    data-id="${ev.id}"
     data-key="${key}"
     ondragstart="startDrag(event,'${key}','${ev.id}')"
     ondragend="endDrag(event)"
@@ -1932,6 +1953,7 @@ function renderEventCard(ev, key, inline=true) {
     ${typeDot(ev.type)}<span class="event-card-title">${ev.title}</span>
     <div class="event-card-sub">${ev.meta||''}</div>
     <button class="event-del" onclick="removeEvent('${key}','${ev.id}',event)" title="Remove">×</button>
+    <button class="event-check" onclick="toggleDone('${key}','${ev.id}',event)" title="${ev.done?'Mark incomplete':'Mark complete'}">✓</button>
   </div>`;
 }
 
@@ -1987,7 +2009,7 @@ function renderMonthView() {
         ondragleave="removeDragOver(event)"
         ondragenter="addDragOver(event)">
         <div class="month-day-num ${todayCls}">${todayCls?`<div class="month-day-num today-num">${date.getDate()}</div>`:date.getDate()}</div>
-        ${allEvs.slice(0,3).map(ev=>`<div class="month-event ${typeClass(ev.type)}" onclick="currentWeek=${w};setView('week',null);renderAll()">${ev.title}</div>`).join('')}
+        ${allEvs.slice(0,3).map(ev=>`<div class="month-event ${typeClass(ev.type)}${ev.done?' done':''}" onclick="currentWeek=${w};setView('week',null);renderAll()">${ev.title}</div>`).join('')}
         ${allEvs.length>3?`<div style="font-size:10px;color:var(--text3);padding:1px 4px">+${allEvs.length-3} more</div>`:''}
       </div>`;
     }
@@ -2109,6 +2131,7 @@ function removeDragOver(e) { e.currentTarget.classList.remove('drag-over'); }
 
   let srcEl      = null;   // element the touch started on
   let ghost      = null;   // floating clone following the finger
+  let tapOnCheck = false;  // true if touch started on the ✓ button
   let dropTarget = null;   // slot currently highlighted
   let dragging   = false;  // true once movement threshold is crossed
   let ox = 0, oy = 0;      // finger offset within srcEl at drag start
@@ -2129,10 +2152,11 @@ function removeDragOver(e) { e.currentTarget.classList.remove('drag-over'); }
     e.preventDefault();
 
     const t = e.touches[0];
-    srcEl   = el;
-    dragging = false;
-    startX  = t.clientX;
-    startY  = t.clientY;
+    srcEl     = el;
+    dragging  = false;
+    tapOnCheck = !!e.target.closest('.event-check');
+    startX    = t.clientX;
+    startY    = t.clientY;
 
     const rect = el.getBoundingClientRect();
     ox = t.clientX - rect.left;
@@ -2185,9 +2209,13 @@ function removeDragOver(e) { e.currentTarget.classList.remove('drag-over'); }
     e.preventDefault();
 
     if (!dragging) {
-      // ── Tap: no movement — open edit modal or ignore sidebar tap ──
+      // ── Tap: route based on which part of the card was tapped ──
       if (srcEl.classList.contains('event-card')) {
-        openEditModal(srcEl.dataset.key, srcEl.dataset.id, { stopPropagation() {} });
+        if (tapOnCheck) {
+          toggleDone(srcEl.dataset.key, srcEl.dataset.id, { stopPropagation() {} });
+        } else {
+          openEditModal(srcEl.dataset.key, srcEl.dataset.id, { stopPropagation() {} });
+        }
       }
       reset(); return;
     }
@@ -2230,7 +2258,7 @@ function removeDragOver(e) { e.currentTarget.classList.remove('drag-over'); }
     if (ghost)  { ghost.remove(); ghost = null; }
     if (srcEl)  { srcEl.style.opacity = ''; srcEl = null; }
     document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-    dragging = false; dropTarget = null;
+    dragging = false; dropTarget = null; tapOnCheck = false;
   }
 })();
 
@@ -2339,6 +2367,13 @@ function removeEvent(key, id, e) {
   const idx = evs.findIndex(ev=>ev.id===id);
   if(idx>-1) evs.splice(idx,1);
   renderAll();
+}
+
+function toggleDone(key, id, e) {
+  e.stopPropagation();
+  const evs = events[key]||[];
+  const ev = evs.find(ev=>ev.id===id);
+  if (ev) { ev.done = !ev.done; renderAll(); }
 }
 
 // ── INFO PAGE PERSONALISATION ─────────────────────────────────────
