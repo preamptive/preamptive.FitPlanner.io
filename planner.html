@@ -2132,31 +2132,33 @@ function isToday(d) {
 
 function renderStats() {
   const row = document.getElementById('statsRow');
-  let workouts=0, meals=0, totalKcal=0;
-  let doneWorkouts=0, doneMeals=0;
+  let totalSessions=0, doneSessions=0, doneMeals=0, doneKcal=0;
   for(let d=0;d<7;d++) {
-    // getAllDayEvents correctly reads all slot keys (s0–s3) + the bare key
     getAllDayEvents(currentWeek, d).forEach(e => {
       if(e.type==='meal'||e.type==='snack') {
-        meals++;
-        if(e.done) doneMeals++;
-        const match = (e.meta||'').match(/(\d+)\s*kcal/);
-        if(match) totalKcal += parseInt(match[1]);
+        if(e.done) {
+          doneMeals++;
+          const match = (e.meta||'').match(/(\d+)\s*kcal/);
+          if(match) doneKcal += parseInt(match[1]);
+        }
       } else {
-        workouts++;
-        if(e.done) doneWorkouts++;
+        totalSessions++;
+        if(e.done) doneSessions++;
       }
     });
   }
   const total = userProfile?.programWeeks || 8;
   const wt    = weekType(currentWeek, total);
   const phase = wt.charAt(0).toUpperCase() + wt.slice(1);
+  // Sessions: show done/total so you can see progress at a glance
+  const sessionVal   = doneSessions > 0 ? `${doneSessions}/${totalSessions}` : String(totalSessions);
+  const sessionLabel = doneSessions > 0 ? 'sessions done' : 'sessions';
   row.innerHTML = `
     <div class="stat-chip"><span class="stat-chip-val">${currentWeek}</span><span class="stat-chip-label">of ${total} weeks</span></div>
     <div class="stat-chip"><span class="stat-chip-val">${phase}</span><span class="stat-chip-label">phase</span></div>
-    <div class="stat-chip"><span class="stat-chip-val">${doneWorkouts>0?`${doneWorkouts}/`:''}${workouts}</span><span class="stat-chip-label">sessions${doneWorkouts>0?' done':' this week'}</span></div>
-    <div class="stat-chip"><span class="stat-chip-val">${doneMeals>0?`${doneMeals}/`:''}${meals}</span><span class="stat-chip-label">meals${doneMeals>0?' done':' logged'}</span></div>
-    ${totalKcal>0?`<div class="stat-chip"><span class="stat-chip-val">${totalKcal.toLocaleString()}</span><span class="stat-chip-label">kcal tracked</span></div>`:''}
+    <div class="stat-chip"><span class="stat-chip-val">${sessionVal}</span><span class="stat-chip-label">${sessionLabel}</span></div>
+    <div class="stat-chip"><span class="stat-chip-val">${doneMeals}</span><span class="stat-chip-label">meals logged</span></div>
+    ${doneKcal>0?`<div class="stat-chip"><span class="stat-chip-val">${doneKcal.toLocaleString()}</span><span class="stat-chip-label">kcal tracked</span></div>`:''}
   `;
 }
 
