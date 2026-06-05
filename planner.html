@@ -2133,15 +2133,19 @@ function isToday(d) {
 function renderStats() {
   const row = document.getElementById('statsRow');
   let workouts=0, meals=0, totalKcal=0;
+  let doneWorkouts=0, doneMeals=0;
   for(let d=0;d<7;d++) {
-    const evs = events[`w${currentWeek}d${d}`]||[];
-    evs.forEach(e => {
+    // getAllDayEvents correctly reads all slot keys (s0–s3) + the bare key
+    getAllDayEvents(currentWeek, d).forEach(e => {
       if(e.type==='meal'||e.type==='snack') {
         meals++;
-        const m = e.meta||'';
-        const match = m.match(/(\d+)\s*kcal/);
+        if(e.done) doneMeals++;
+        const match = (e.meta||'').match(/(\d+)\s*kcal/);
         if(match) totalKcal += parseInt(match[1]);
-      } else { workouts++; }
+      } else {
+        workouts++;
+        if(e.done) doneWorkouts++;
+      }
     });
   }
   const total = userProfile?.programWeeks || 8;
@@ -2150,8 +2154,8 @@ function renderStats() {
   row.innerHTML = `
     <div class="stat-chip"><span class="stat-chip-val">${currentWeek}</span><span class="stat-chip-label">of ${total} weeks</span></div>
     <div class="stat-chip"><span class="stat-chip-val">${phase}</span><span class="stat-chip-label">phase</span></div>
-    <div class="stat-chip"><span class="stat-chip-val">${workouts}</span><span class="stat-chip-label">sessions this week</span></div>
-    <div class="stat-chip"><span class="stat-chip-val">${meals}</span><span class="stat-chip-label">meals logged</span></div>
+    <div class="stat-chip"><span class="stat-chip-val">${doneWorkouts>0?`${doneWorkouts}/`:''}${workouts}</span><span class="stat-chip-label">sessions${doneWorkouts>0?' done':' this week'}</span></div>
+    <div class="stat-chip"><span class="stat-chip-val">${doneMeals>0?`${doneMeals}/`:''}${meals}</span><span class="stat-chip-label">meals${doneMeals>0?' done':' logged'}</span></div>
     ${totalKcal>0?`<div class="stat-chip"><span class="stat-chip-val">${totalKcal.toLocaleString()}</span><span class="stat-chip-label">kcal tracked</span></div>`:''}
   `;
 }
