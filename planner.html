@@ -261,6 +261,9 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
 .stat-chip-val { font-size: 18px; font-weight: 300; font-family: 'DM Serif Display', serif; color: var(--text); }
 .stat-chip-label { color: var(--text3); font-size: 11px; }
 
+/* FILTER ROW */
+.filter-row { display: flex; justify-content: flex-end; margin-bottom: 0.75rem; }
+
 /* SCROLLBAR */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -691,6 +694,13 @@ body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--t
   </div>
 
   <div class="calendar-area">
+    <div class="filter-row">
+      <div class="view-toggle">
+        <button class="view-btn active" id="filterAll"      onclick="setFilter('all',this)">All</button>
+        <button class="view-btn"        id="filterExercise" onclick="setFilter('exercise',this)">Exercise</button>
+        <button class="view-btn"        id="filterFood"     onclick="setFilter('food',this)">Food</button>
+      </div>
+    </div>
     <div class="stats-row" id="statsRow"></div>
     <div id="calendarView"></div>
   </div>
@@ -1380,6 +1390,7 @@ const MEAL_LIBRARY = [
 // ── STATE ─────────────────────────────────────────────────────────
 let currentWeek = 1;
 let currentView = 'week';
+let viewFilter  = 'all'; // 'all' | 'exercise' | 'food'
 let events = {}; // key: "w1d0" = week1 day0(Mon)
 let modalEditKey = null;
 let dragItem = null;
@@ -2195,7 +2206,7 @@ function renderWeekView() {
     html += `<div class="time-col"><div class="time-label">${slot}</div></div>`;
     for(let d=0;d<7;d++) {
       const key     = `w${currentWeek}d${d}s${si}`;
-      const slotEvs = (events[key]||[]);
+      const slotEvs = filterEvs(events[key]||[]);
       const date    = getDate(currentWeek, d);
       const before  = ACTUAL_START_DATE && date < ACTUAL_START_DATE;
       const colCls  = before ? ' before-plan' : isToday(date) ? ' today-col' : '';
@@ -2224,7 +2235,7 @@ function renderMonthView() {
       const date    = getDate(w,d);
       const before  = ACTUAL_START_DATE && date < ACTUAL_START_DATE;
       const todayCls = isToday(date)?'today-num':'';
-      const allEvs  = getAllDayEvents(w,d);
+      const allEvs  = filterEvs(getAllDayEvents(w,d));
       html += `<div class="month-day${before?' before-plan':''}"
         data-key="w${w}d${d}s0"
         ondragover="allowDrop(event)"
@@ -2767,6 +2778,23 @@ function personalizeInfoPage(p) {
          : `Week ${w} progression`}</td>
     </tr>`;
   }).join('');
+}
+
+// ── FILTER ────────────────────────────────────────────────────────
+const FOOD_TYPES = new Set(['meal','snack']);
+
+function filterEvs(evs) {
+  if (viewFilter === 'exercise') return evs.filter(ev => !FOOD_TYPES.has(ev.type));
+  if (viewFilter === 'food')     return evs.filter(ev =>  FOOD_TYPES.has(ev.type));
+  return evs;
+}
+
+function setFilter(f, el) {
+  viewFilter = f;
+  document.querySelectorAll('#filterAll,#filterExercise,#filterFood')
+    .forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderAll();
 }
 
 // ── CONTROLS ──────────────────────────────────────────────────────
